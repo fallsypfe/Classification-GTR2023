@@ -80,6 +80,10 @@ dans la classification rapide des sols selon le GTR 2023. Il permet un gain de t
 dans la phase d'étude, mais <strong>ne dispense en aucun cas de la vérification par un ingénieur
 qualifié</strong>. Les résultats doivent être confrontés aux données de terrain, aux essais de laboratoire
 et aux prescriptions du Guide des Terrassements (IDRRIM/Cerema, Fascicules 1 et 2, éd. 2024).
+<br><br>
+📩 Pour toute remarque, suggestion ou contribution :<br>
+📧 <a href="mailto:smouhamadane.sy@univ-thies.sn" style="color:#ffe0b0;">smouhamadane.sy@univ-thies.sn</a><br>
+💬 <a href="https://wa.me/221773367568" style="color:#ffe0b0;">WhatsApp : +221 77 336 75 68</a>
 </div>"""
 
 # ══════════════════════════════════════════════════════════════════
