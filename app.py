@@ -158,6 +158,59 @@ CODES={"E":{0:"Pas de condition particulière",1:"Extraction en couches (0,1-0,3
 ROCHES={"CH":"Craie","Li":"Calcaires","Cl":"Roches argileuses","Sa":"Grès","Co":"Conglomérats",
 "SR":"Roches salines","Vo":"Roches magmatiques","Me":"Roches métamorphiques"}
 
+COMPACTAGE_QS = {
+    "F1": {
+        "q4": {"V3": {"qs":0.085,"e":0.30,"v":2.5}, "V4": {"qs":0.100,"e":0.40,"v":2.5}, "V5": {"qs":0.130,"e":0.45,"v":2.5},
+               "VP3": {"qs":0.085,"e":0.30,"v":2.5}, "VP4": {"qs":0.100,"e":0.30,"v":3.5}, "VP5": {"qs":0.130,"e":0.30,"v":4.0},
+               "P2": {"qs":0.065,"e":0.35,"v":5.0}, "P3": {"qs":0.095,"e":0.45,"v":5.0},
+               "SP1": {"qs":0.040,"e":0.20,"v":8.0}, "SP2": {"qs":0.070,"e":0.30,"v":8.0}},
+        "q3": {"V3": {"qs":0.050,"e":0.30,"v":2.0}, "V4": {"qs":0.065,"e":0.30,"v":2.0}, "V5": {"qs":0.085,"e":0.30,"v":2.0},
+               "VP3": {"qs":0.050,"e":0.20,"v":2.0}, "VP4": {"qs":0.065,"e":0.30,"v":2.5}, "VP5": {"qs":0.085,"e":0.30,"v":3.0},
+               "P2": {"qs":0.050,"e":0.20,"v":5.0}, "P3": {"qs":0.035,"e":0.30,"v":5.0},
+               "SP1": {"qs":0.035,"e":0.25,"v":8.0}},
+    },
+    "F2": {
+        "q4": {"V3": {"qs":0.060,"e":0.30,"v":2.0}, "V4": {"qs":0.080,"e":0.35,"v":2.5}, "V5": {"qs":0.100,"e":0.40,"v":2.5},
+               "VP3": {"qs":0.060,"e":0.25,"v":2.5}, "VP4": {"qs":0.080,"e":0.30,"v":3.0}, "VP5": {"qs":0.100,"e":0.30,"v":3.5},
+               "P2": {"qs":0.050,"e":0.25,"v":5.0}, "P3": {"qs":0.080,"e":0.35,"v":5.0},
+               "SP1": {"qs":0.040,"e":0.20,"v":8.0}, "SP2": {"qs":0.065,"e":0.30,"v":8.0}},
+        "q3": {"V4": {"qs":0.050,"e":0.25,"v":2.0}, "V5": {"qs":0.065,"e":0.30,"v":2.0},
+               "VP4": {"qs":0.050,"e":0.25,"v":2.5}, "VP5": {"qs":0.065,"e":0.30,"v":3.0},
+               "P3": {"qs":0.050,"e":0.30,"v":5.0}},
+    },
+    "F3": {
+        "q4": {"V3": {"qs":0.055,"e":0.25,"v":2.0}, "V4": {"qs":0.070,"e":0.30,"v":2.5}, "V5": {"qs":0.085,"e":0.35,"v":2.5},
+               "VP3": {"qs":0.070,"e":0.30,"v":3.5}, "VP4": {"qs":0.085,"e":0.30,"v":4.0}, "VP5": {"qs":0.110,"e":0.30,"v":5.0},
+               "P2": {"qs":0.040,"e":0.25,"v":5.0}, "P3": {"qs":0.060,"e":0.35,"v":5.0},
+               "SP1": {"qs":0.040,"e":0.20,"v":8.0}, "SP2": {"qs":0.070,"e":0.30,"v":8.0}},
+        "q3": {"V4": {"qs":0.045,"e":0.25,"v":2.0}, "V5": {"qs":0.055,"e":0.30,"v":2.0},
+               "VP4": {"qs":0.055,"e":0.25,"v":3.0}, "VP5": {"qs":0.070,"e":0.30,"v":3.5},
+               "P3": {"qs":0.040,"e":0.25,"v":5.0}},
+    },
+    "I1": {
+        "q4": {"V3": {"qs":0.090,"e":0.30,"v":2.5}, "V4": {"qs":0.110,"e":0.40,"v":2.5}, "V5": {"qs":0.140,"e":0.45,"v":2.5},
+               "VP3": {"qs":0.090,"e":0.30,"v":3.0}, "VP4": {"qs":0.110,"e":0.35,"v":3.5}, "VP5": {"qs":0.140,"e":0.35,"v":4.0},
+               "P2": {"qs":0.070,"e":0.35,"v":5.0}, "P3": {"qs":0.100,"e":0.45,"v":5.0}},
+        "q3": {"V4": {"qs":0.070,"e":0.30,"v":2.0}, "V5": {"qs":0.090,"e":0.35,"v":2.0},
+               "VP4": {"qs":0.070,"e":0.30,"v":3.0}, "VP5": {"qs":0.090,"e":0.30,"v":3.5},
+               "P3": {"qs":0.065,"e":0.35,"v":5.0}},
+    },
+    "S": {
+        "q4": {"V3": {"qs":0.125,"e":0.35,"v":3.0}, "V4": {"qs":0.150,"e":0.45,"v":3.0}, "V5": {"qs":0.185,"e":0.50,"v":3.0},
+               "P2": {"qs":0.100,"e":0.40,"v":5.0}, "P3": {"qs":0.150,"e":0.50,"v":5.0},
+               "PQ3": {"qs":0.040,"e":0.20,"v":1.0}, "PQ4": {"qs":0.060,"e":0.25,"v":1.0}},
+        "q3": {"V4": {"qs":0.100,"e":0.35,"v":2.5}, "V5": {"qs":0.125,"e":0.40,"v":2.5},
+               "P3": {"qs":0.100,"e":0.40,"v":5.0}},
+    },
+    "G": {
+        "q4": {"V3": {"qs":0.145,"e":0.40,"v":3.0}, "V4": {"qs":0.175,"e":0.50,"v":3.0}, "V5": {"qs":0.215,"e":0.55,"v":3.0},
+               "P2": {"qs":0.120,"e":0.45,"v":5.0}, "P3": {"qs":0.180,"e":0.60,"v":5.0},
+               "PQ3": {"qs":0.050,"e":0.25,"v":1.0}, "PQ4": {"qs":0.070,"e":0.30,"v":1.0}},
+        "q3": {"V4": {"qs":0.115,"e":0.40,"v":2.5}, "V5": {"qs":0.145,"e":0.45,"v":2.5},
+               "P3": {"qs":0.120,"e":0.45,"v":5.0}},
+    },
+}
+
 # ══════════════════════════════════════════════════════════════════
 # FONCTIONS
 # ══════════════════════════════════════════════════════════════════
@@ -271,6 +324,37 @@ def get_compacteurs(fam,etat):
         q3=[("V4-V5","Vibrant cylindre lisse"),("P3","Pneus")]
     return {"q4":q4,"q3":q3}
 
+def show_synoptique(famille, sc, p63):
+    """Visual synoptique showing where the soil falls in GTR classification"""
+    st.markdown("**Position dans la classification GTR 2023 :**")
+    if p63 is not None:
+        if p63 > 35:
+            level1 = f"Passant 63 µm = {p63:.1f}% > 35% → **Sols fins (F)**"
+        elif p63 >= 15:
+            level1 = f"Passant 63 µm = {p63:.1f}% (15-35%) → **Sols intermédiaires (I)**"
+        else:
+            level1 = f"Passant 63 µm = {p63:.1f}% < 15% → **Sols sableux/graveleux (S/G)**"
+        st.markdown(f"1️⃣ {level1}")
+    st.markdown(f"2️⃣ Sous-classe → **{sc}** ({DESC.get(sc, sc)})")
+    classes_in_family = {
+        "F": ["F1","F2","F3","F4","F4+"],
+        "I": ["I1","I2"],
+        "S": ["S1","S2","S3","S4"],
+        "G": ["G1","G2","G3","G4"],
+    }
+    if famille in classes_in_family:
+        cols = st.columns(len(classes_in_family[famille]))
+        for i, cls in enumerate(classes_in_family[famille]):
+            with cols[i]:
+                if cls == sc:
+                    st.markdown(f'<div style="background:#b5651d;color:white;text-align:center;padding:8px;border-radius:6px;font-weight:700;font-size:16px;">{cls}</div>', unsafe_allow_html=True)
+                else:
+                    st.markdown(f'<div style="background:#efe6d4;color:#6e5847;text-align:center;padding:8px;border-radius:6px;font-size:14px;">{cls}</div>', unsafe_allow_html=True)
+
+def get_qs_table(sc, famille):
+    """Get Q/S compaction table for the given soil class or family."""
+    return COMPACTAGE_QS.get(sc) or COMPACTAGE_QS.get(famille)
+
 def sanitize(text):
     """Remplace les caractères Unicode non supportés par Helvetica (Latin-1)."""
     if not isinstance(text, str): return str(text)
@@ -331,6 +415,81 @@ def build_excel(projet_info, sondages):
     wb.save(buf)
     buf.seek(0)
     return buf
+
+def draw_coupe(pdf, sondages):
+    """Draw a simplified geotechnical cross-section"""
+    pdf.add_page()
+    pdf.chapter_title("", "COUPE GEOTECHNIQUE SCHEMATIQUE")
+    sondage_groups = {}
+    for s in sondages:
+        sid = s["sondage_id"]
+        if sid not in sondage_groups:
+            sondage_groups[sid] = []
+        sondage_groups[sid].append(s)
+    if not sondage_groups:
+        return
+    margin_left = 20
+    col_width = min(35, 170 / max(len(sondage_groups), 1))
+    max_depth = 0
+    for layers in sondage_groups.values():
+        for s in layers:
+            d = s.get("prof_a", 0)
+            try:
+                val = float(str(d).replace("m","")) if isinstance(d, str) else float(d or 0)
+                max_depth = max(max_depth, val)
+            except:
+                max_depth = max(max_depth, 5)
+    if max_depth == 0:
+        max_depth = 5
+    y_start = pdf.get_y() + 5
+    scale = 100 / max_depth
+    colors = {"F": (210,180,140), "I": (180,200,160), "S": (240,220,150), "G": (190,190,190), "R": (160,160,180), "O": (120,100,80), "VC": (170,170,170)}
+    for idx, (sid, layers) in enumerate(sondage_groups.items()):
+        x = margin_left + idx * (col_width + 5)
+        pdf.set_font("Helvetica", "B", 7)
+        pdf.set_xy(x, y_start - 5)
+        pdf.cell(col_width, 4, sanitize(sid), align="C")
+        y_current = y_start
+        for s in layers:
+            h_de = s.get("prof_de", 0) or 0
+            h_a = s.get("prof_a", 3) or 3
+            try:
+                h_de = float(str(h_de).replace("m","")) if isinstance(h_de, str) else float(h_de)
+                h_a = float(str(h_a).replace("m","")) if isinstance(h_a, str) else float(h_a)
+            except:
+                h_de = 0; h_a = 3
+            h_px = (h_a - h_de) * scale
+            if h_px < 8: h_px = 8
+            fam = s.get("famille", "F")
+            r, g, b = colors.get(fam, (200, 200, 200))
+            pdf.set_fill_color(r, g, b)
+            pdf.set_draw_color(100, 100, 100)
+            pdf.rect(x, y_current, col_width, h_px, "DF")
+            pdf.set_font("Helvetica", "B", 6)
+            pdf.set_xy(x, y_current + 1)
+            pdf.cell(col_width, 3, sanitize(s.get("symbole", "")), align="C")
+            pdf.set_font("Helvetica", "", 5)
+            pdf.set_xy(x, y_current + 4)
+            pdf.cell(col_width, 3, sanitize(f"{h_de}-{h_a}m"), align="C")
+            y_current += h_px
+    pdf.set_font("Helvetica", "", 6)
+    pdf.set_draw_color(0, 0, 0)
+    for d in range(int(max_depth) + 1):
+        y = y_start + d * scale
+        pdf.line(margin_left - 5, y, margin_left - 2, y)
+        pdf.set_xy(margin_left - 18, y - 2)
+        pdf.cell(12, 4, f"{d}m", align="R")
+    pdf.ln(max_depth * scale + 15)
+    pdf.set_font("Helvetica", "B", 8)
+    pdf.cell(0, 5, sanitize("Legende :"), new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "", 7)
+    for fam, (r, g, b) in colors.items():
+        pdf.set_fill_color(r, g, b)
+        pdf.rect(pdf.get_x(), pdf.get_y(), 8, 4, "F")
+        pdf.set_xy(pdf.get_x() + 10, pdf.get_y())
+        full_name = {"F":"Sols fins","I":"Intermediaires","S":"Sableux","G":"Graveleux","R":"Rocheux","O":"Organiques","VC":"Gros elements"}.get(fam, fam)
+        pdf.cell(30, 4, sanitize(f"{fam} - {full_name}"))
+        pdf.ln(5)
 
 def build_pdf(projet_info, sondages):
     from fpdf import FPDF
@@ -405,7 +564,10 @@ def build_pdf(projet_info, sondages):
     for i,s in enumerate(sondages,1):
         pdf.add_page()
         pdf.set_font("Helvetica","B",16); pdf.set_text_color(45,93,107)
-        pdf.s_cell(0,12,f"SONDAGE {i} - {s['sondage_id']}",align="C",new_x="LMARGIN",new_y="NEXT")
+        depth_str_pdf = ""
+        if s.get("prof_de") is not None and s.get("prof_a") is not None:
+            depth_str_pdf = f" ({s['prof_de']}-{s['prof_a']} m)"
+        pdf.s_cell(0,12,f"SONDAGE {i} - {s['sondage_id']}{depth_str_pdf}",align="C",new_x="LMARGIN",new_y="NEXT")
         pdf.set_text_color(0,0,0)
 
         # Classification
@@ -474,20 +636,45 @@ def build_pdf(projet_info, sondages):
             if comp.get("q3"):
                 pdf.set_font("Helvetica","B",8); pdf.s_cell(0,5,"  CdF (q3):",new_x="LMARGIN",new_y="NEXT"); pdf.set_font("Helvetica","",8)
                 for eng,d2 in comp["q3"]: pdf.s_cell(0,4,f"    - {eng}: {d2}",new_x="LMARGIN",new_y="NEXT")
+            # Q/S table in PDF
+            qs_data = get_qs_table(s.get("sc",""), s.get("famille",""))
+            if qs_data:
+                pdf.ln(3); pdf.sub_title("Tableau Q/S (Fascicule 2, Annexe 4)")
+                for obj_label in ("q4", "q3"):
+                    obj_data = qs_data.get(obj_label, {})
+                    if obj_data:
+                        pdf.set_font("Helvetica","B",7); pdf.s_cell(0,5,f"  {obj_label.upper()} :",new_x="LMARGIN",new_y="NEXT")
+                        pdf.set_fill_color(239,230,212); pdf.set_font("Helvetica","B",7)
+                        for h in ["Engin","Q/S (m3/m2)","e (m)","V (km/h)"]: pdf.s_cell(30,5,h,border=1,fill=True,align="C")
+                        pdf.ln(); pdf.set_font("Helvetica","",7)
+                        for eng, vals in obj_data.items():
+                            pdf.s_cell(30,4,eng,border=1,align="C")
+                            pdf.s_cell(30,4,f"{vals['qs']:.3f}",border=1,align="C")
+                            pdf.s_cell(30,4,f"{vals['e']:.2f}",border=1,align="C")
+                            pdf.s_cell(30,4,f"{vals['v']:.1f}",border=1,align="C")
+                            pdf.ln()
+                        pdf.ln(2)
 
     # SYNTHÈSE
     pdf.add_page(); pdf.chapter_title("","SYNTHESE GENERALE")
     pdf.set_font("Helvetica","B",8); pdf.set_fill_color(239,230,212)
-    for h in ["Sondage","Classe","Etat","Remblai","CdF"]: pdf.s_cell(32,6,h,border=1,fill=True,align="C")
+    for h in ["Sondage","Profondeur","Classe","Etat","Remblai","CdF"]: pdf.s_cell(27,6,h,border=1,fill=True,align="C")
     pdf.ln(); pdf.set_font("Helvetica","",8)
     for s in sondages:
-        pdf.s_cell(32,5,s["sondage_id"],border=1,align="C")
-        pdf.s_cell(32,5,s["symbole"],border=1,align="C")
-        pdf.s_cell(32,5,ETQ.get(s.get("etat",""),""),border=1,align="C")
-        pdf.s_cell(32,5,"Oui" if s.get("do_remblai") and not isinstance(s.get("remblai_cond"),str) else "Etude",border=1,align="C")
+        depth_s = ""
+        if s.get("prof_de") is not None and s.get("prof_a") is not None:
+            depth_s = f"{s['prof_de']}-{s['prof_a']}m"
+        pdf.s_cell(27,5,s["sondage_id"],border=1,align="C")
+        pdf.s_cell(27,5,depth_s,border=1,align="C")
+        pdf.s_cell(27,5,s["symbole"],border=1,align="C")
+        pdf.s_cell(27,5,ETQ.get(s.get("etat",""),""),border=1,align="C")
+        pdf.s_cell(27,5,"Oui" if s.get("do_remblai") and not isinstance(s.get("remblai_cond"),str) else "Etude",border=1,align="C")
         cdf=s.get("cdf_result",{})
-        pdf.s_cell(32,5,"Oui" if "Utilisable" in cdf.get("texte","") else "Traitement" if cdf.get("traitement") else "-",border=1,align="C")
+        pdf.s_cell(27,5,"Oui" if "Utilisable" in cdf.get("texte","") else "Traitement" if cdf.get("traitement") else "-",border=1,align="C")
         pdf.ln()
+
+    # COUPE GEOTECHNIQUE
+    draw_coupe(pdf, sondages)
 
     pdf.ln(8); pdf.set_font("Helvetica","I",8); pdf.set_text_color(107,95,80)
     pdf.s_multi(0,4,"Ce rapport a ete genere par l'outil Classification GTR2023 developpe par Serigne Mouhamadane SY (UIDT). "
@@ -590,7 +777,14 @@ elif st.session_state.step==1:
             for s in st.session_state.sondages:
                 st.markdown(f"• **{s['sondage_id']}** → {s['symbole']} ({DESC.get(s['sc'],s['sc'])})")
     st.divider()
-    sondage_id=st.text_input("Numéro / Identifiant du sondage *",placeholder="Ex : S1, BH-03, SP-12...")
+    _prefill_sid = st.session_state.pop("_prefill_sid", "")
+    _prefill_prof_de = st.session_state.pop("_prefill_prof_de", 0.0)
+    sondage_id=st.text_input("Numéro / Identifiant du sondage *",value=_prefill_sid,placeholder="Ex : S1, BH-03, SP-12...")
+
+    st.markdown("**Profondeur du sondage**")
+    c_prof1, c_prof2 = st.columns(2)
+    with c_prof1: prof_de = st.number_input("De (m)", 0.0, 100.0, value=float(_prefill_prof_de), step=0.5, key="prof_de")
+    with c_prof2: prof_a = st.number_input("A (m)", 0.0, 100.0, value=None, placeholder="Requis", step=0.5, key="prof_a")
 
     mat_type=st.radio("Type de matériau *",["Sol meuble (Dmax ≤ 63 mm)","Sol à gros éléments (Dmax > 63 mm) — VC","Matériau rocheux extrait","Sol organique (MO > 2 %)"])
     st.divider()
@@ -616,6 +810,7 @@ elif st.session_state.step==1:
 
         if st.button("✅ Classifier",type="primary",use_container_width=True):
             if not sondage_id: errors.append("N° sondage")
+            if prof_a is None: errors.append("Profondeur A (m)")
             if p63 is None: errors.append("Passant 63 µm (obligatoire)")
             if ip is None and vbs is None: errors.append("IP ou VBS (au moins un des deux)")
             if p63 is not None and p63<15 and p2 is None: errors.append("Passant 2 mm (obligatoire si passant 63µm < 15%)")
@@ -624,7 +819,7 @@ elif st.session_state.step==1:
                 fam,sc=classify(p63,p2,ip,vbs,cu); etats=calc_etat(sc,wn,wopn,ipi,ic,p2); etat,divergence_msg=resolve_etat(etats)
                 if fam in ("S","G") and cu is None:
                     st.warning(f"⚠ Cu non renseigné — le sol est classé avec Cu < 6 par défaut ({sc}). Pour une classification précise des sols S et G, le Cu est recommandé.")
-                params={"Pass. 63µm":f"{p63:.1f}%"}
+                params={"Prof. de":f"{prof_de}m","Prof. a":f"{prof_a}m","Pass. 63µm":f"{p63:.1f}%"}
                 if p2 is not None: params["Pass. 2mm"]=f"{p2:.1f}%"
                 if cu is not None: params["Cu"]=f"{cu:.1f}"
                 if ip is not None: params["IP"]=f"{ip:.1f}%"
@@ -634,7 +829,8 @@ elif st.session_state.step==1:
                 if ipi is not None: params["IPI"]=f"{ipi:.1f}"
                 if ic is not None: params["Ic"]=f"{ic:.2f}"
                 st.session_state.cur={"type":"sol","sondage_id":sondage_id,"famille":fam,"sc":sc,"etat":etat,"etats":etats,"insensible":False,
-                    "symbole":sc+etat,"params":params,"p63":p63,"p2":p2,"vbs_val":vbs,"divergence":divergence_msg}
+                    "symbole":sc+etat,"params":params,"p63":p63,"p2":p2,"vbs_val":vbs,"divergence":divergence_msg,
+                    "prof_de":prof_de,"prof_a":prof_a}
                 go(2); st.rerun()
 
     elif "gros éléments" in mat_type:
@@ -653,6 +849,7 @@ elif st.session_state.step==1:
         with c7: vbsv=st.number_input("VBS *",0.0,20.0,value=None,placeholder="IP ou VBS requis",key="vvbs")
         if st.button("✅ Classifier",type="primary",use_container_width=True):
             if not sondage_id: errors.append("N° sondage")
+            if prof_a is None: errors.append("Profondeur A (m)")
             if dmax is None: errors.append("Dmax")
             if frac is None: errors.append("Fraction 0/63")
             if p63v is None: errors.append("Passant 63µm")
@@ -661,13 +858,14 @@ elif st.session_state.step==1:
             if errors: st.error(f"⚠ {' — '.join(errors)}")
             else:
                 f0,sc0=classify(p63v,p2v,ipv,vbsv,cuv)
-                vc_params={"Dmax":f"{dmax:.0f}mm","Frac.0/63":f"{frac:.0f}%","Type":vc,"P63µm(0/63)":f"{p63v:.1f}%","P2mm(0/63)":f"{p2v:.1f}%"}
+                vc_params={"Prof. de":f"{prof_de}m","Prof. a":f"{prof_a}m","Dmax":f"{dmax:.0f}mm","Frac.0/63":f"{frac:.0f}%","Type":vc,"P63µm(0/63)":f"{p63v:.1f}%","P2mm(0/63)":f"{p2v:.1f}%"}
                 if cuv is not None: vc_params["Cu(0/63)"]=f"{cuv:.1f}"
                 if ipv is not None: vc_params["IP(0/63)"]=f"{ipv:.1f}%"
                 if vbsv is not None: vc_params["VBS(0/63)"]=f"{vbsv:.2f}"
                 st.session_state.cur={"type":"vc","sondage_id":sondage_id,"famille":"VC","sc":f"{vc}({sc0})","scm":f"{vc}({sc0})",
                     "etat":None,"symbole":f"{vc}({sc0})","etats":[],"insensible":False,
-                    "params":vc_params,"p2":p2v,"vc_sc063":sc0,"vc_fam063":f0,"do_remblai":False,"do_cdf":False,"do_compact":False}
+                    "params":vc_params,"p2":p2v,"vc_sc063":sc0,"vc_fam063":f0,"do_remblai":False,"do_cdf":False,"do_compact":False,
+                    "prof_de":prof_de,"prof_a":prof_a}
                 go(2); st.rerun()
 
     elif "rocheux" in mat_type:
@@ -685,6 +883,7 @@ elif st.session_state.step==1:
             with c6: wn_ch=st.number_input("wn (%)*",0.0,60.0,value=None,placeholder="Requis")
         if st.button("✅ Classifier",type="primary",use_container_width=True):
             if not sondage_id: errors.append("N° sondage")
+            if prof_a is None: errors.append("Profondeur A (m)")
             if la_r is None: errors.append("LA");
             if mde_r is None: errors.append("MDE")
             if roche=="CH":
@@ -692,7 +891,7 @@ elif st.session_state.step==1:
                 if wn_ch is None: errors.append("wn")
             if errors: st.error(f"Champs obligatoires : {', '.join(errors)}")
             else:
-                params={"Classe":roche,"Nature":ROCHES[roche],"LA":str(la_r),"MDE":str(mde_r)}
+                params={"Prof. de":f"{prof_de}m","Prof. a":f"{prof_a}m","Classe":roche,"Nature":ROCHES[roche],"LA":str(la_r),"MDE":str(mde_r)}
                 if ifr is not None: params["IFR"]=f"{ifr:.1f}"
                 if idga is not None: params["IDGa"]=f"{idga:.1f}"
                 sc_r=roche
@@ -718,7 +917,7 @@ elif st.session_state.step==1:
                         else: sc_r = roche + "-R3"
                 cdf_ok=la_r<=45 and mde_r<=45
                 st.session_state.cur={"type":"roche","sondage_id":sondage_id,"famille":"R","sc":sc_r,"scm":sc_r,"etat":None,"symbole":sc_r,
-                    "insensible":False,"etats":[],"params":params,"p2":None,"la":la_r,"mde":mde_r,
+                    "insensible":False,"etats":[],"params":params,"p2":None,"la":la_r,"mde":mde_r,"prof_de":prof_de,"prof_a":prof_a,
                     "do_remblai":True,"remblai_cond":"Matériau rocheux — Fascicule 2, Annexe 2.",
                     "do_cdf":True,"cdf_result":{"texte":f"LA={la_r}, MDE={mde_r} — {'Utilisable' if cdf_ok else 'Non utilisable'}",
                     "params_meca":{"LA":str(la_r),"MDE":str(mde_r)},"traitement":"" if cdf_ok else "Traitement/substitution"},
@@ -728,13 +927,14 @@ elif st.session_state.step==1:
         mo=st.number_input("MO (%)*",0.0,100.0,value=None,placeholder="Requis")
         if st.button("✅ Classifier",type="primary",use_container_width=True):
             if not sondage_id: errors.append("N° sondage")
+            if prof_a is None: errors.append("Profondeur A (m)")
             if mo is None: errors.append("MO")
             if errors: st.error(f"Champs obligatoires : {', '.join(errors)}")
             else:
                 sc_o="Non organique" if mo<2 else "O1" if mo<6 else "O2" if mo<20 else "O3"
                 st.session_state.cur={"type":"organique","sondage_id":sondage_id,"famille":"O","sc":sc_o,"scm":sc_o,"etat":None,
-                    "symbole":sc_o,"insensible":False,"etats":[],"params":{"MO":f"{mo:.1f}%"},"p2":None,
-                    "do_remblai":False,"do_cdf":False,"do_compact":False}
+                    "symbole":sc_o,"insensible":False,"etats":[],"params":{"Prof. de":f"{prof_de}m","Prof. a":f"{prof_a}m","MO":f"{mo:.1f}%"},"p2":None,
+                    "do_remblai":False,"do_cdf":False,"do_compact":False,"prof_de":prof_de,"prof_a":prof_a}
                 go(2); st.rerun()
 
 # ══════════════════════════════════════════════════════════════════
@@ -759,6 +959,12 @@ elif st.session_state.step==2:
     if car:
         st.markdown("**Caractères principaux :**")
         st.markdown(f"*{car}*")
+    # Depth display
+    if d.get("prof_de") is not None and d.get("prof_a") is not None:
+        st.markdown(f"**Profondeur :** {d['prof_de']} - {d['prof_a']} m")
+    # Synoptique for sol meuble
+    if d["type"]=="sol":
+        show_synoptique(d["famille"], d["sc"], d.get("p63"))
     st.divider()
 
     if d["type"]=="organique":
@@ -907,6 +1113,20 @@ elif st.session_state.step==6:
     for eng,desc in d["compacteurs"]["q4"]: st.markdown(f"• **{eng}** — {desc}")
     st.markdown("**CdF (q3):**")
     for eng,desc in d["compacteurs"]["q3"]: st.markdown(f"• **{eng}** — {desc}")
+    # Q/S table
+    qs_data = get_qs_table(d["sc"], d["famille"])
+    if qs_data:
+        st.markdown("---")
+        st.markdown("**Tableau Q/S de compactage** *(GTR 2023, Fascicule 2, Annexe 4)*")
+        for obj_label in ("q4", "q3"):
+            obj_data = qs_data.get(obj_label, {})
+            if obj_data:
+                st.markdown(f"***{obj_label.upper()} :***")
+                rows = []
+                for eng, vals in obj_data.items():
+                    rows.append(f"| {eng} | {vals['qs']:.3f} | {vals['e']:.2f} | {vals['v']:.1f} |")
+                table = "| Engin | Q/S (m³/m²) | e (m) | V (km/h) |\n|---|---|---|---|\n" + "\n".join(rows)
+                st.markdown(table)
     st.divider()
     if st.button("💾 Enregistrer ce sondage",type="primary",use_container_width=True):
         st.session_state.sondages.append(d); go(7); st.rerun()
@@ -918,15 +1138,28 @@ elif st.session_state.step==7:
     pi=st.session_state.projet_info; sondages=st.session_state.sondages
     st.markdown(f"### ✅ {len(sondages)} sondage(s) enregistré(s)")
     st.caption(f"Projet : {pi['projet']} — Site : {pi['site']}")
+    # Group sondages by sondage_id for display
+    from collections import OrderedDict
+    sondage_groups = OrderedDict()
     for idx, s in enumerate(sondages):
-        desc=DESC.get(s["sc"],s["sc"])
-        c_s, c_del = st.columns([8, 1])
-        with c_s:
-            st.markdown(f'<div class="result-box" style="padding:12px;"><strong>{s["sondage_id"]}</strong> → '
-                f'<span class="badge badge-main">{s["symbole"]}</span> <span style="color:#6b5f50;font-size:13px;">{desc}</span></div>',unsafe_allow_html=True)
-        with c_del:
-            if st.button("🗑", key=f"del_{idx}", help=f"Supprimer {s['sondage_id']}"):
-                st.session_state.sondages.pop(idx); st.rerun()
+        sid = s["sondage_id"]
+        if sid not in sondage_groups:
+            sondage_groups[sid] = []
+        sondage_groups[sid].append((idx, s))
+    for sid, layers in sondage_groups.items():
+        st.markdown(f"**{sid}**" + (f" ({len(layers)} couche(s))" if len(layers) > 1 else ""))
+        for idx, s in layers:
+            desc=DESC.get(s["sc"],s["sc"])
+            depth_str = ""
+            if s.get("prof_de") is not None and s.get("prof_a") is not None:
+                depth_str = f" ({s['prof_de']}-{s['prof_a']} m)"
+            c_s, c_del = st.columns([8, 1])
+            with c_s:
+                st.markdown(f'<div class="result-box" style="padding:12px;"><strong>{s["sondage_id"]}{depth_str}</strong> → '
+                    f'<span class="badge badge-main">{s["symbole"]}</span> <span style="color:#6b5f50;font-size:13px;">{desc}</span></div>',unsafe_allow_html=True)
+            with c_del:
+                if st.button("🗑", key=f"del_{idx}", help=f"Supprimer {s['sondage_id']}{depth_str}"):
+                    st.session_state.sondages.pop(idx); st.rerun()
     st.divider()
     remaining=pi["nb_sondages"]-len(sondages)
     if remaining>0:
@@ -945,6 +1178,15 @@ elif st.session_state.step==7:
             file_name=f"GTR2023_{nom_projet}_{datetime.now().strftime('%Y%m%d')}.json",
             mime="application/json", use_container_width=True)
     if sondages:
+        last_s = sondages[-1]
+        last_prof_a = last_s.get("prof_a", 0) or 0
+        if st.button("➕ Ajouter une couche au sondage actuel", use_container_width=True):
+            st.session_state.step = 1
+            if "cur" in st.session_state: del st.session_state["cur"]
+            st.session_state["_prefill_sid"] = last_s["sondage_id"]
+            st.session_state["_prefill_prof_de"] = last_prof_a
+            st.rerun()
+    if sondages:
         xl_buf = build_excel(pi, sondages)
         nom_xl = pi.get("projet","projet")[:20].replace(" ","_") or "projet"
         st.download_button("📊 Exporter en Excel", data=xl_buf,
@@ -961,17 +1203,21 @@ elif st.session_state.step==8:
     st.markdown(f"<p style='text-align:center;color:#6b5f50;font-size:12px;'>{pi['projet']} — {pi['site']} — {pi['ingenieur']} — {datetime.now().strftime('%d/%m/%Y')}</p>",unsafe_allow_html=True)
 
     st.markdown("### Synthèse")
-    cols_h=st.columns([2,2,1,1,1])
-    cols_h[0].markdown("**Sondage**"); cols_h[1].markdown("**Classe**"); cols_h[2].markdown("**État**"); cols_h[3].markdown("**Remblai**"); cols_h[4].markdown("**CdF**")
+    cols_h=st.columns([2,1,2,1,1,1])
+    cols_h[0].markdown("**Sondage**"); cols_h[1].markdown("**Prof.**"); cols_h[2].markdown("**Classe**"); cols_h[3].markdown("**État**"); cols_h[4].markdown("**Remblai**"); cols_h[5].markdown("**CdF**")
     for s in sondages:
-        c=st.columns([2,2,1,1,1])
-        c[0].markdown(s["sondage_id"]); c[1].markdown(f"**{s['symbole']}**"); c[2].markdown(ETQ.get(s.get("etat",""),"-"))
-        c[3].markdown("✅" if s.get("do_remblai") and not isinstance(s.get("remblai_cond"),str) else "❌")
-        cdf=s.get("cdf_result",{}); c[4].markdown("✅" if "Utilisable" in cdf.get("texte","") else "⚠️" if cdf.get("traitement") else "-")
+        c=st.columns([2,1,2,1,1,1])
+        depth_disp = f"{s.get('prof_de',0)}-{s.get('prof_a','')}m" if s.get("prof_a") is not None else "-"
+        c[0].markdown(s["sondage_id"]); c[1].markdown(depth_disp); c[2].markdown(f"**{s['symbole']}**"); c[3].markdown(ETQ.get(s.get("etat",""),"-"))
+        c[4].markdown("✅" if s.get("do_remblai") and not isinstance(s.get("remblai_cond"),str) else "❌")
+        cdf=s.get("cdf_result",{}); c[5].markdown("✅" if "Utilisable" in cdf.get("texte","") else "⚠️" if cdf.get("traitement") else "-")
 
     for s in sondages:
         st.divider()
-        st.markdown(f"### Sondage {s['sondage_id']} — {s['symbole']}")
+        depth_str = ""
+        if s.get("prof_de") is not None and s.get("prof_a") is not None:
+            depth_str = f" ({s['prof_de']}-{s['prof_a']} m)"
+        st.markdown(f"### Sondage {s['sondage_id']}{depth_str} — {s['symbole']}")
         st.markdown(f"*{DESC.get(s['sc'],s['sc'])}*")
         cols=st.columns(3)
         for i,(k,v) in enumerate(s["params"].items()): cols[i%3].markdown(f"• **{k}**: {v}")
