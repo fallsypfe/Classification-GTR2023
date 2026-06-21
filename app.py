@@ -60,6 +60,23 @@ DESC={"F1":"Limons peu plastiques, loess, silts","F2":"Sables fins argileux, lim
 "I1":"Sables et graves très silteux","I2":"Sables et graves argileux",
 "S1":"Sables propres Cu≥6","S2":"Sables propres Cu<6","S3":"Sables limoneux Cu≥6","S4":"Sables limoneux Cu<6",
 "G1":"Graves peu fines Cu≥6","G2":"Graves homométriques Cu<6","G3":"Graves silteuses Cu≥6","G4":"Graves silteuses Cu<6"}
+CARACTERES = {
+    "F1": "Ces sols changent brutalement de consistance pour de faibles variations de teneur en eau, en particulier lorsque leur wn est proche de wOPN. Le temps de réaction aux variations de l'environnement hydrique et climatique est relativement court. Il est souvent préférable de les identifier par la VBS (imprécision de l'IP).",
+    "F2": "Le caractère moyen de ces sols fait qu'ils se prêtent à l'emploi de la plus large gamme d'outils de terrassement (si la teneur en eau n'est pas trop élevée). Dès que l'IP atteint des valeurs >= 12, il constitue le critère d'identification le mieux adapté.",
+    "F3": "Ces sols sont très cohérents à teneur en eau moyenne et faible, et collants ou glissants à l'état humide, d'où la difficulté de mise en oeuvre sur chantier. Leur perméabilité très réduite rend leurs variations de teneur en eau très lentes. Une augmentation de teneur en eau assez importante est nécessaire pour changer notablement leur consistance.",
+    "F4": "Ces sols sont très cohérents et presque imperméables : s'ils changent de teneur en eau, c'est extrêmement lentement et avec d'importants retraits ou gonflements. Leur emploi en remblai de faible hauteur est envisageable avec un traitement adapté.",
+    "F4+": "L'utilisation des argiles très plastiques en l'état n'est pas envisageable hors étude spécifique et restera limitée à des remblais de faible hauteur.",
+    "I1": "La proportion de fines et la faible plasticité de ces dernières rapprochent beaucoup le comportement de ces sols de celui des sols F. Il y a lieu de préférer le critère VBS au critère IP pour l'identification.",
+    "I2": "L'influence des fines est prépondérante ; le comportement du sol se rapproche de celui du sol fin ayant la même plasticité avec toutefois une plus grande sensibilité à l'eau due à la présence de la fraction sableuse en plus grande quantité.",
+    "S1": "Sables propres à granulométrie étalée (Cu >= 6). Sans cohésion et perméables, généralement insensibles à l'eau mais cette insensibilité devra être confirmée (VBS, CBRi). Emploi en couche de forme non traitée : mesure de la friabilité FS nécessaire.",
+    "S2": "Sables propres à granulométrie uniforme (Cu < 6). Sans cohésion et perméables, généralement insensibles à l'eau. Granulométrie mal graduée et de petit calibre, très érodables et traficabilité difficile.",
+    "S3": "Sables limoneux/argileux à granulométrie étalée. La plasticité et/ou la quantité de fines rendent ces sols généralement sensibles à l'eau. Temps de réaction aux variations hydriques court. Quand sensibles à l'eau en état h ou th, difficiles à améliorer par essorage.",
+    "S4": "Sables limoneux/argileux à granulométrie uniforme. Sensibles à l'eau. Granulométrie uniforme et de petit calibre, très érodables et traficabilité difficile.",
+    "G1": "Graves à granulométrie étalée contenant peu de fines. Généralement insensibles à l'eau (à confirmer par VBS). Emploi en couche de forme non traitée : mesure de LA et MDE nécessaire.",
+    "G2": "Graves homométriques contenant peu de fines. Sans cohésion et perméables, généralement insensibles à l'eau. Granulométrie homométrique. Mauvaise traficabilité surtout si roulés.",
+    "G3": "Graves silteuses/argileuses à granulométrie étalée. Sensibilité à l'eau dépendant de la plasticité des fines. Perméables. Réaction assez rapide aux variations hydriques. Après compactage, d'autant moins érodables qu'ils sont bien gradués.",
+    "G4": "Graves silteuses/argileuses mal graduées. Teneur en fines les rend impropres au drainage. Emploi en couche de forme non traitée : mesure de LA et MDE nécessaire.",
+}
 ETQ={"th":"très humide","h":"humide","m":"moyen","s":"sec","ts":"très sec","ins":"insensible à l'eau"}
 SEUILS_WN={"F1":(1.25,1.10,0.90,0.70),"F2":(1.30,1.10,0.90,0.70),"F3":(1.40,1.20,0.90,0.70),
 "F4":(1.40,1.20,0.90,0.70),"I1":(1.25,1.10,0.90,0.60),"I2":(1.30,1.10,0.90,0.70)}
@@ -88,7 +105,9 @@ def classify(p63,p2,ip,vbs,cu):
     elif p63>=15:
         return ("I","I2") if ((vbs and vbs>1.5)or(ip and ip>12)) else ("I","I1")
     else:
-        fs=max(p2-p63,0) if p2 else 0;fg=max(100-p2,0) if p2 else 0
+        if p2 is None:
+            return ("S","S3") if (cu and cu>=6) else ("S","S4")
+        fs=max(p2-p63,0); fg=max(100-p2,0)
         if fs>=fg:
             if p63<=5: return ("S","S1") if(cu and cu>=6) else ("S","S2")
             return ("S","S3") if(cu and cu>=6) else ("S","S4")
@@ -98,6 +117,8 @@ def classify(p63,p2,ip,vbs,cu):
 
 def calc_etat(sc,wn,wopn,ipi,ic,p2):
     res=[]
+    if wn is None and wopn is None and ipi is None and ic is None:
+        return res
     if wn is not None and wopn and wopn>0:
         r=wn/wopn
         if sc in SEUILS_WN: th,h,m,s=SEUILS_WN[sc]
@@ -248,6 +269,10 @@ def build_pdf(projet_info, sondages):
         pdf.s_cell(0,12,f"  {s['symbole']}",new_x="LMARGIN",new_y="NEXT"); pdf.set_text_color(0,0,0)
         pdf.set_font("Helvetica","",9); pdf.s_cell(0,6,f"  {DESC.get(s['sc'],s['sc'])}",new_x="LMARGIN",new_y="NEXT"); pdf.ln(2)
         pdf.param_table(s["params"])
+        car = CARACTERES.get(s['sc'])
+        if car:
+            pdf.sub_title("Caracteres principaux")
+            pdf.set_font("Helvetica","I",8); pdf.s_multi(0,4,car); pdf.ln(2)
         if s.get("etats"):
             pdf.sub_title("Etat hydrique")
             pdf.set_font("Helvetica","B",9); pdf.s_cell(0,6,f"  Etat retenu : {s['etat']} ({ETQ.get(s['etat'],'')})",new_x="LMARGIN",new_y="NEXT")
@@ -373,36 +398,32 @@ elif st.session_state.step==1:
         st.markdown("**Granulométrie** *(NF EN ISO 17892-4)*")
         c1,c2,c3=st.columns(3)
         with c1: p63=st.number_input("Passant 63µm (%) *",0.0,100.0,value=None,placeholder="Obligatoire")
-        with c2: p2=st.number_input("Passant 2mm (%) *",0.0,100.0,value=None,placeholder="Obligatoire")
-        with c3: cu=st.number_input("Cu (D60/D10)",0.0,500.0,value=None,placeholder="Si disponible",help="Obligatoire pour les sols S et G (seuil 6). Non requis pour F et I.")
+        with c2: p2=st.number_input("Passant 2mm (%)",0.0,100.0,value=None,placeholder="Si p63<15%",help="Obligatoire si passant 63µm < 15% (distinction S/G). Optionnel sinon (optionnel).")
+        with c3: cu=st.number_input("Cu (D60/D10)",0.0,500.0,value=None,placeholder="Si disponible",help="Utilisé pour S1/S2 vs S3/S4 (seuil 6). Optionnel (optionnel).")
         st.markdown("**Argilosité** *(au moins IP ou VBS — les deux si disponibles)*")
         c4,c5=st.columns(2)
-        with c4: ip=st.number_input("IP (%)",0.0,100.0,value=None,placeholder="IP ou VBS requis",help="NF EN ISO 17892-12 — Seuils : 12, 22, 40, 55. Prioritaire pour sols moyennement à très argileux.")
-        with c5: vbs=st.number_input("VBS (g/100g)",0.0,20.0,value=None,placeholder="IP ou VBS requis",help="NF EN 17542-3 — Seuils : 1.5, 2.5, 6, 8. Prioritaire pour sols F1, I et S/G.")
-        st.markdown("**État hydrique** *(au moins wn+wOPN ou IPI — les trois si disponibles)*")
+        with c4: ip=st.number_input("IP (%) *",0.0,100.0,value=None,placeholder="IP ou VBS requis",help="NF EN ISO 17892-12 — Seuils : 12, 22, 40, 55. Prioritaire pour sols moyennement à très argileux.")
+        with c5: vbs=st.number_input("VBS (g/100g) *",0.0,20.0,value=None,placeholder="IP ou VBS requis",help="NF EN 17542-3 — Seuils : 1.5, 2.5, 6, 8. Prioritaire pour sols F1, I et S/G.")
+        st.markdown("**État hydrique** *(optionnel — au moins wn+wOPN ou IPI recommandé)*")
         c6,c7,c8=st.columns(3)
-        with c6: wn=st.number_input("wn (%)",0.0,200.0,value=None,placeholder="Si disponible",help="Teneur en eau naturelle. Utilisé avec wOPN pour le ratio wn/wOPN.")
-        with c7: wopn=st.number_input("wOPN (%)",0.0,100.0,value=None,placeholder="Si disponible",help="Optimum Proctor Normal. Fiable pour les états s et ts.")
-        with c8: ipi=st.number_input("IPI",0.0,200.0,value=None,placeholder="Si disponible",help="NF EN 13286-47 — Privilégié pour les états h et th.")
+        with c6: wn=st.number_input("wn (%)",0.0,200.0,value=None,placeholder="Optionnel",help="Teneur en eau naturelle. Utilisé avec wOPN pour le ratio wn/wOPN (optionnel).")
+        with c7: wopn=st.number_input("wOPN (%)",0.0,100.0,value=None,placeholder="Optionnel",help="Optimum Proctor Normal. Fiable pour les états s et ts (optionnel).")
+        with c8: ipi=st.number_input("IPI",0.0,100.0,value=None,placeholder="Optionnel",help="NF EN 13286-47 — Privilégié pour les états h et th (optionnel).")
         use_ic=st.checkbox("Utiliser Ic (recommandé pour F2, F3, F4, I2)")
-        ic=st.number_input("Ic",0.0,3.0,value=None,placeholder="Si disponible") if use_ic else None
+        ic=st.number_input("Ic",0.0,3.0,value=None,placeholder="Optionnel") if use_ic else None
 
         if st.button("✅ Classifier",type="primary",use_container_width=True):
             if not sondage_id: errors.append("N° sondage")
             if p63 is None: errors.append("Passant 63 µm (obligatoire)")
-            if p2 is None: errors.append("Passant 2 mm (obligatoire)")
             if ip is None and vbs is None: errors.append("IP ou VBS (au moins un des deux)")
-            has_wn_wopn = wn is not None and wopn is not None
-            has_ipi = ipi is not None
-            has_ic = ic is not None
-            if not has_wn_wopn and not has_ipi and not has_ic:
-                errors.append("État hydrique : fournir wn+wOPN, ou IPI, ou Ic")
+            if p63 is not None and p63<15 and p2 is None: errors.append("Passant 2 mm (obligatoire si passant 63µm < 15%)")
             if errors: st.error(f"⚠ {' — '.join(errors)}")
             else:
                 fam,sc=classify(p63,p2,ip,vbs,cu); etats=calc_etat(sc,wn,wopn,ipi,ic,p2); etat=etats[0][1] if etats else "m"
                 if fam in ("S","G") and cu is None:
                     st.warning(f"⚠ Cu non renseigné — le sol est classé avec Cu < 6 par défaut ({sc}). Pour une classification précise des sols S et G, le Cu est recommandé.")
-                params={"Pass. 63µm":f"{p63:.1f}%","Pass. 2mm":f"{p2:.1f}%"}
+                params={"Pass. 63µm":f"{p63:.1f}%"}
+                if p2 is not None: params["Pass. 2mm"]=f"{p2:.1f}%"
                 if cu is not None: params["Cu"]=f"{cu:.1f}"
                 if ip is not None: params["IP"]=f"{ip:.1f}%"
                 if vbs is not None: params["VBS"]=f"{vbs:.2f}"
@@ -422,18 +443,18 @@ elif st.session_state.step==1:
         st.markdown("**Fraction 0/63mm :**")
         c3,c4,c5=st.columns(3)
         with c3: p63v=st.number_input("Pass. 63µm (%) *",0.0,100.0,value=None,placeholder="Obligatoire",key="vp63")
-        with c4: p2v=st.number_input("Pass. 2mm (%) *",0.0,100.0,value=None,placeholder="Obligatoire",key="vp2")
-        with c5: cuv=st.number_input("Cu",0.0,500.0,value=None,placeholder="Si disponible",key="vcu",help="Nécessaire pour S/G, optionnel pour F/I")
+        with c4: p2v=st.number_input("Pass. 2mm (%)",0.0,100.0,value=None,placeholder="Si p63<15%",key="vp2",help="Obligatoire si passant 63µm < 15% (optionnel).")
+        with c5: cuv=st.number_input("Cu",0.0,500.0,value=None,placeholder="Si disponible",key="vcu",help="Optionnel (optionnel).")
         st.markdown("**Argilosité** *(au moins IP ou VBS)*")
         c6,c7=st.columns(2)
-        with c6: ipv=st.number_input("IP (%)",0.0,100.0,value=None,placeholder="IP ou VBS requis",key="vip")
-        with c7: vbsv=st.number_input("VBS",0.0,20.0,value=None,placeholder="IP ou VBS requis",key="vvbs")
+        with c6: ipv=st.number_input("IP (%) *",0.0,100.0,value=None,placeholder="IP ou VBS requis",key="vip")
+        with c7: vbsv=st.number_input("VBS *",0.0,20.0,value=None,placeholder="IP ou VBS requis",key="vvbs")
         if st.button("✅ Classifier",type="primary",use_container_width=True):
             if not sondage_id: errors.append("N° sondage")
             if dmax is None: errors.append("Dmax")
             if frac is None: errors.append("Fraction 0/63")
             if p63v is None: errors.append("Passant 63µm")
-            if p2v is None: errors.append("Passant 2mm")
+            if p63v is not None and p63v<15 and p2v is None: errors.append("Passant 2mm (obligatoire si p63<15%)")
             if ipv is None and vbsv is None: errors.append("IP ou VBS (au moins un)")
             if errors: st.error(f"⚠ {' — '.join(errors)}")
             else:
@@ -450,8 +471,8 @@ elif st.session_state.step==1:
     elif "rocheux" in mat_type:
         roche=st.selectbox("Classe*",list(ROCHES.keys()),format_func=lambda k:f"{k} — {ROCHES[k]}")
         c1,c2=st.columns(2)
-        with c1: la_r=st.number_input("LA*",0,200,value=None,placeholder="Requis")
-        with c2: mde_r=st.number_input("MDE*",0,200,value=None,placeholder="Requis")
+        with c1: la_r=st.number_input("LA*",0,100,value=None,placeholder="Requis")
+        with c2: mde_r=st.number_input("MDE*",0,100,value=None,placeholder="Requis")
         c3,c4=st.columns(2)
         with c3: ifr=st.number_input("IFR",0.0,50.0,value=None,placeholder="Optionnel")
         with c4: idga=st.number_input("IDGa",0.0,50.0,value=None,placeholder="Optionnel")
@@ -516,6 +537,10 @@ elif st.session_state.step==2:
     if d["etats"]:
         st.markdown("**État hydrique :**")
         for meth,et,val in d["etats"]: st.markdown(f"• {meth}={val} → **{et}** ({ETQ.get(et,'')})")
+    car = CARACTERES.get(d["sc"])
+    if car:
+        st.markdown("**Caractères principaux :**")
+        st.markdown(f"*{car}*")
     st.divider()
 
     if d["type"]=="organique":
@@ -573,7 +598,7 @@ elif st.session_state.step==2:
 elif st.session_state.step==3:
     d=st.session_state.cur
     st.markdown(f"### Sensibilité à l'eau — {d['sondage_id']} ({d['sc']})")
-    cbri=st.number_input("CBRi (après 4j immersion)*",0.0,200.0,value=None,placeholder="Requis")
+    cbri=st.number_input("CBRi (après 4j immersion)*",0.0,100.0,value=None,placeholder="Requis")
     if st.button("✅ Vérifier",type="primary",use_container_width=True):
         if cbri is None: st.error("CBRi obligatoire")
         else:
@@ -611,7 +636,7 @@ elif st.session_state.step==5:
     st.markdown(f"### Couche de forme — {d['sondage_id']} ({d['symbole']})")
     errors=[]
     if fam=="S":
-        fs=st.number_input("FS — Friabilité des sables*",0,200,value=None,placeholder="Requis")
+        fs=st.number_input("FS — Friabilité des sables*",0,100,value=None,placeholder="Requis")
         if st.button("✅ Valider",type="primary",use_container_width=True):
             if fs is None: st.error("FS obligatoire")
             else:
@@ -621,8 +646,8 @@ elif st.session_state.step==5:
                 go(6); st.rerun()
     elif fam=="G":
         c1,c2=st.columns(2)
-        with c1: la=st.number_input("LA*",0,200,value=None,placeholder="Requis")
-        with c2: mde=st.number_input("MDE*",0,200,value=None,placeholder="Requis")
+        with c1: la=st.number_input("LA*",0,100,value=None,placeholder="Requis")
+        with c2: mde=st.number_input("MDE*",0,100,value=None,placeholder="Requis")
         if st.button("✅ Valider",type="primary",use_container_width=True):
             if la is None: errors.append("LA")
             if mde is None: errors.append("MDE")
