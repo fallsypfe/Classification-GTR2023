@@ -450,10 +450,6 @@ if st.session_state.step==0:
             except Exception as e:
                 st.error(f"❌ Fichier invalide : {e}")
 
-    st.markdown("""<div class="install-banner">
-    📱 <strong>Installer sur votre téléphone :</strong><br>
-    Ouvrez ce site dans <strong>Chrome</strong> → menu ⋮ → <strong>"Installer l'application"</strong> ou <strong>"Ajouter à l'écran d'accueil"</strong>
-    </div>""", unsafe_allow_html=True)
     st.markdown(CREDIT, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════
