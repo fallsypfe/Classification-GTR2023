@@ -118,32 +118,41 @@ OBS_REMBLAI = {
     "F2": {"th": "Sol non traficable.", "h": "Sols difficiles a mettre en oeuvre. Depot provisoire et drainage non envisageables en climat francais moyen.", "m": "Conditions optimales.", "s": "Surcompactage possible mais attention aux remblais de grande hauteur.", "ts": "Non reutilisable en conditions courantes."},
     "F3": {"th": "Non reutilisable.", "h": "Tres coherents et collants. L'aeration est peu efficace du fait de la faible permeabilite.", "m": "Conditions optimales mais sols tres coherents.", "s": "Humidification necessaire, penetration de l'eau tres lente.", "ts": "Non reutilisable."},
     "F4": {"th": "Non reutilisable.", "h": "Emploi en remblai de faible hauteur uniquement, avec traitement.", "m": "Traitement necessaire meme en etat moyen pour remblai de faible hauteur.", "s": "Humidification et traitement necessaires.", "ts": "Non reutilisable."},
+    "F4+": {"th": "Non reutilisable.", "h": "Non reutilisable sauf etude specifique.", "m": "Etude specifique obligatoire, remblai de faible hauteur uniquement.", "s": "Etude specifique obligatoire.", "ts": "Non reutilisable."},
     "I1": {"th": "Non traficable.", "h": "Comportement proche des sols F. Mise en oeuvre difficile.", "m": "Conditions optimales.", "s": "Humidification ou surcompactage.", "ts": "Non reutilisable."},
     "I2": {"th": "Non traficable.", "h": "Influence des fines preponderante. Sensibilite a l'eau elevee.", "m": "Conditions optimales.", "s": "Humidification necessaire.", "ts": "Non reutilisable."},
+    "S1": {"ins": "Insensible a l'eau. Mise en oeuvre sans difficulte particuliere.", "th": "Difficile a compacter si sature.", "h": "Arrosage a eviter, risque de liquefaction.", "m": "Conditions optimales.", "s": "Arrosage leger pour eviter la segregation.", "ts": "Humidification necessaire."},
+    "S2": {"ins": "Insensible a l'eau. Traficabilite difficile du fait de la granulometrie uniforme.", "th": "Tres difficile a compacter.", "h": "Mise en oeuvre delicate.", "m": "Conditions optimales mais traficabilite mediocre.", "s": "Arrosage.", "ts": "Humidification necessaire."},
+    "S3": {"ins": "Insensible a l'eau. Mise en oeuvre courante.", "th": "Non traficable.", "h": "Essorage difficile. Traitement possible.", "m": "Conditions optimales.", "s": "Arrosage pour maintien.", "ts": "Humidification necessaire."},
+    "S4": {"ins": "Insensible a l'eau malgre granulometrie uniforme.", "th": "Non traficable.", "h": "Essorage difficile, traficabilite mediocre.", "m": "Conditions optimales mais erodable.", "s": "Arrosage.", "ts": "Humidification necessaire."},
+    "G1": {"ins": "Insensible a l'eau. Materiau de bonne qualite pour remblai et couche de forme.", "th": "Rare. Drainage suffisant.", "h": "Mise en oeuvre possible.", "m": "Conditions optimales. Excellent materiau de remblai.", "s": "Arrosage leger.", "ts": "Humidification."},
+    "G2": {"ins": "Insensible a l'eau. Traficabilite mediocre si roules.", "th": "Rare.", "h": "Mise en oeuvre possible.", "m": "Conditions optimales mais traficabilite limitee.", "s": "Arrosage.", "ts": "Humidification."},
+    "G3": {"ins": "Insensible a l'eau. Bon materiau.", "th": "Non traficable.", "h": "Sensibilite a l'eau selon plasticite des fines. Aeration possible.", "m": "Conditions optimales.", "s": "Arrosage pour maintien.", "ts": "Humidification necessaire."},
+    "G4": {"ins": "Insensible a l'eau malgre granulometrie uniforme.", "th": "Non traficable.", "h": "Mise en oeuvre delicate.", "m": "Conditions optimales.", "s": "Arrosage.", "ts": "Humidification necessaire."},
 }
 
-# PST simplified determination
-PST_RULES = {
-    "R3": "PST0", "R4": "PST1", "R5": "PST2",
-    "S1": "PST1", "S2": "PST1", "G1": "PST1", "G2": "PST1",
-}
+# PST simplified determination (Fascicule 1, Chapitre 4)
 def get_pst(sc, etat, famille):
     """Simplified PST determination based on GTR 2023."""
-    if sc.startswith("R") and sc not in ("R3","R4","R5"):
-        return None, "PST non determine pour cette classe de roche."
-    if sc in PST_RULES:
-        return PST_RULES[sc], None
+    if famille == "R" or sc.startswith(("CH","Li","Cl","Sa","Co","SR","Vo","Me")):
+        return "PST0", "Materiau rocheux - PST fonction de la fragmentation et de l'etat."
+    if sc in ("S1","S2","G1","G2"):
+        if etat == "ins": return "PST1", "Sol grenus insensibles a l'eau."
+        if etat == "m": return "PST1", "Sol grenus etat moyen."
+        if etat in ("h","s"): return "PST2", "Sol grenus etat h ou s."
+        return "PST3", "Sol grenus etat defavorable."
     if sc in ("S3","S4","G3","G4"):
-        if etat in ("m","ins"): return "PST2", None
-        if etat == "h": return "PST3", None
-        if etat == "s": return "PST2", "Humidification necessaire."
-        return None, "Etat incompatible — etude specifique."
+        if etat == "ins": return "PST1", "Sol grenus insensibles a l'eau."
+        if etat == "m": return "PST2", "Sol grenus sensibles a l'eau, etat moyen."
+        if etat == "h": return "PST3", "Sol grenus sensibles a l'eau, etat humide."
+        if etat == "s": return "PST2", "Sol grenus sensibles, etat sec - humidification necessaire."
+        return "PST4", "Sol grenus etat defavorable."
     if famille in ("F","I"):
-        if etat in ("m","ins"): return "PST3", None
-        if etat == "h": return "PST4", None
-        if etat == "s": return "PST3", "Humidification necessaire."
-        return None, "Etat incompatible — etude specifique."
-    return None, "PST non determine."
+        if etat == "m": return "PST3", "Sol fin/intermediaire etat moyen."
+        if etat == "h": return "PST4", "Sol fin/intermediaire etat humide."
+        if etat == "s": return "PST3", "Sol fin/intermediaire etat sec - humidification necessaire."
+        return "PST5", "Sol fin/intermediaire etat defavorable - etude specifique."
+    return "PST3", "Classification PST par defaut - a preciser par etude."
 SEUILS_WN={"F1":(1.25,1.10,0.90,0.70),"F2":(1.30,1.10,0.90,0.70),"F3":(1.40,1.20,0.90,0.70),
 "F4":(1.40,1.20,0.90,0.70),"I1":(1.25,1.10,0.90,0.60),"I2":(1.30,1.10,0.90,0.70)}
 SEUILS_IPI={"F1":(3,8,25),"F2":(2,6,15),"F3":(2,4,10),"F4":(1,3,10),"I1":(5,12,30),"I2":(4,10,25)}
@@ -187,6 +196,15 @@ COMPACTAGE_QS = {
                "VP4": {"qs":0.055,"e":0.25,"v":3.0}, "VP5": {"qs":0.070,"e":0.30,"v":3.5},
                "P3": {"qs":0.040,"e":0.25,"v":5.0}},
     },
+    "F4": {
+        "q4": {"V3": {"qs":0.040,"e":0.20,"v":2.0}, "V4": {"qs":0.055,"e":0.25,"v":2.0}, "V5": {"qs":0.070,"e":0.30,"v":2.0},
+               "VP3": {"qs":0.055,"e":0.25,"v":3.0}, "VP4": {"qs":0.070,"e":0.25,"v":3.5}, "VP5": {"qs":0.085,"e":0.30,"v":4.0},
+               "P2": {"qs":0.030,"e":0.20,"v":5.0}, "P3": {"qs":0.050,"e":0.30,"v":5.0},
+               "SP1": {"qs":0.035,"e":0.20,"v":8.0}, "SP2": {"qs":0.060,"e":0.25,"v":8.0}},
+        "q3": {"V4": {"qs":0.035,"e":0.20,"v":2.0}, "V5": {"qs":0.045,"e":0.25,"v":2.0},
+               "VP4": {"qs":0.045,"e":0.20,"v":3.0}, "VP5": {"qs":0.055,"e":0.25,"v":3.5},
+               "P3": {"qs":0.035,"e":0.25,"v":5.0}},
+    },
     "I1": {
         "q4": {"V3": {"qs":0.090,"e":0.30,"v":2.5}, "V4": {"qs":0.110,"e":0.40,"v":2.5}, "V5": {"qs":0.140,"e":0.45,"v":2.5},
                "VP3": {"qs":0.090,"e":0.30,"v":3.0}, "VP4": {"qs":0.110,"e":0.35,"v":3.5}, "VP5": {"qs":0.140,"e":0.35,"v":4.0},
@@ -194,6 +212,15 @@ COMPACTAGE_QS = {
         "q3": {"V4": {"qs":0.070,"e":0.30,"v":2.0}, "V5": {"qs":0.090,"e":0.35,"v":2.0},
                "VP4": {"qs":0.070,"e":0.30,"v":3.0}, "VP5": {"qs":0.090,"e":0.30,"v":3.5},
                "P3": {"qs":0.065,"e":0.35,"v":5.0}},
+    },
+    "I2": {
+        "q4": {"V3": {"qs":0.065,"e":0.30,"v":2.0}, "V4": {"qs":0.085,"e":0.35,"v":2.5}, "V5": {"qs":0.105,"e":0.40,"v":2.5},
+               "VP3": {"qs":0.065,"e":0.25,"v":2.5}, "VP4": {"qs":0.085,"e":0.30,"v":3.0}, "VP5": {"qs":0.105,"e":0.30,"v":3.5},
+               "P2": {"qs":0.055,"e":0.25,"v":5.0}, "P3": {"qs":0.085,"e":0.35,"v":5.0},
+               "SP1": {"qs":0.040,"e":0.20,"v":8.0}, "SP2": {"qs":0.065,"e":0.30,"v":8.0}},
+        "q3": {"V4": {"qs":0.055,"e":0.25,"v":2.0}, "V5": {"qs":0.070,"e":0.30,"v":2.0},
+               "VP4": {"qs":0.055,"e":0.25,"v":2.5}, "VP5": {"qs":0.070,"e":0.30,"v":3.0},
+               "P3": {"qs":0.055,"e":0.30,"v":5.0}},
     },
     "S": {
         "q4": {"V3": {"qs":0.125,"e":0.35,"v":3.0}, "V4": {"qs":0.150,"e":0.45,"v":3.0}, "V5": {"qs":0.185,"e":0.50,"v":3.0},
