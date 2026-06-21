@@ -25,19 +25,49 @@ LOGO_SVG = """<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" widt
 <circle cx="140" cy="78" r="2.2" fill="#d4b87a" opacity="0.6"/><circle cx="90" cy="92" r="1.5" fill="#b5994e" opacity="0.4"/>
 </svg>"""
 
-st.markdown("""<style>
-:root{--ocre:#b5651d;--ocre-dark:#8a4a14;--terre:#6e5847;--fond:#f6f1e7;--carte:#fffdf8;--ligne:#d8cdb8;--texte:#2e2620;--texte-doux:#6b5f50;--accent2:#2d5d6b;}
-.stApp{background-color:var(--fond);}h1{color:var(--texte)!important;text-align:center;}h2,h3{color:var(--accent2)!important;}
-.result-box{background:var(--carte);border:2px solid var(--ocre);border-radius:12px;padding:20px;margin:14px 0;}
-.class-symbol{font-size:48px;font-weight:800;color:var(--ocre);}
-.badge{display:inline-block;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:#efe6d4;color:var(--terre);border:1px solid var(--ligne);margin:2px 3px;}
-.badge-main{background:var(--ocre)!important;color:#fff!important;border:none!important;}
-.note-box{background:#efe6d4;border-radius:8px;padding:12px 14px;font-size:12px;color:var(--texte-doux);margin-top:10px;}
-.code-box{background:#2e2620;color:#f6f1e7;border-radius:8px;padding:10px 14px;font-family:monospace;font-size:14px;margin:6px 0;letter-spacing:0.08em;}
-.err-field{color:#cc3333;font-size:12px;font-weight:600;}
-.footer-dev{background:linear-gradient(135deg,#2d5d6b,#1a3a42);color:#d4cfc5;border-radius:10px;padding:18px 20px;margin-top:20px;font-size:12px;line-height:1.6;}
-.footer-dev strong{color:#f6f1e7;}
-</style>""", unsafe_allow_html=True)
+# ── PWA : manifest + meta tags pour installation mobile ──
+PWA_MANIFEST = {
+    "name": "Classification GTR2023",
+    "short_name": "GTR2023",
+    "description": "Classification des sols selon le GTR 2023 - Remblai, couche de forme, compactage",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f6f1e7",
+    "theme_color": "#b5651d",
+    "orientation": "portrait",
+    "icons": [
+        {"src": "data:image/svg+xml," + LOGO_SVG.replace('"','%22').replace('#','%23').replace('\n',''), "sizes": "any", "type": "image/svg+xml"}
+    ]
+}
+
+import urllib.parse
+manifest_json = json.dumps(PWA_MANIFEST)
+manifest_b64 = base64.b64encode(manifest_json.encode()).decode()
+
+st.markdown(f"""
+<link rel="manifest" href="data:application/json;base64,{manifest_b64}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GTR2023">
+<meta name="theme-color" content="#b5651d">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+:root{{--ocre:#b5651d;--ocre-dark:#8a4a14;--terre:#6e5847;--fond:#f6f1e7;--carte:#fffdf8;--ligne:#d8cdb8;--texte:#2e2620;--texte-doux:#6b5f50;--accent2:#2d5d6b;}}
+.stApp{{background-color:var(--fond);}}h1{{color:var(--texte)!important;text-align:center;}}h2,h3{{color:var(--accent2)!important;}}
+.result-box{{background:var(--carte);border:2px solid var(--ocre);border-radius:12px;padding:20px;margin:14px 0;}}
+.class-symbol{{font-size:48px;font-weight:800;color:var(--ocre);}}
+.badge{{display:inline-block;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:#efe6d4;color:var(--terre);border:1px solid var(--ligne);margin:2px 3px;}}
+.badge-main{{background:var(--ocre)!important;color:#fff!important;border:none!important;}}
+.note-box{{background:#efe6d4;border-radius:8px;padding:12px 14px;font-size:12px;color:var(--texte-doux);margin-top:10px;}}
+.code-box{{background:#2e2620;color:#f6f1e7;border-radius:8px;padding:10px 14px;font-family:monospace;font-size:14px;margin:6px 0;letter-spacing:0.08em;}}
+.err-field{{color:#cc3333;font-size:12px;font-weight:600;}}
+.footer-dev{{background:linear-gradient(135deg,#2d5d6b,#1a3a42);color:#d4cfc5;border-radius:10px;padding:18px 20px;margin-top:20px;font-size:12px;line-height:1.6;}}
+.footer-dev strong{{color:#f6f1e7;}}
+.install-banner{{background:linear-gradient(135deg,var(--ocre),var(--ocre-dark));color:white;border-radius:10px;padding:14px 18px;margin:10px 0;text-align:center;font-size:13px;}}
+.install-banner a{{color:#ffe0b0;font-weight:700;}}
+</style>
+""", unsafe_allow_html=True)
 
 def show_header():
     st.markdown(LOGO_SVG, unsafe_allow_html=True)
@@ -420,6 +450,10 @@ if st.session_state.step==0:
             except Exception as e:
                 st.error(f"❌ Fichier invalide : {e}")
 
+    st.markdown("""<div class="install-banner">
+    📱 <strong>Installer sur votre téléphone :</strong><br>
+    Ouvrez ce site dans <strong>Chrome</strong> → menu ⋮ → <strong>"Installer l'application"</strong> ou <strong>"Ajouter à l'écran d'accueil"</strong>
+    </div>""", unsafe_allow_html=True)
     st.markdown(CREDIT, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════
