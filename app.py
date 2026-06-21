@@ -6,24 +6,9 @@ import base64, json
 
 st.set_page_config(page_title="Classification GTR2023", page_icon="⏳", layout="centered")
 
-LOGO_ECOLE = Path(__file__).parent / "logo_ecole.png"
+LOGO_GTR = Path(__file__).parent / "logo_gtr.png"
 def img_b64(p):
     return base64.b64encode(p.read_bytes()).decode() if p.exists() else ""
-
-LOGO_SVG = """<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" width="80" style="display:block;margin:0 auto;">
-<rect x="30" y="45" width="140" height="16" rx="4" fill="#8a4a14"/><rect x="30" y="57" width="140" height="4" rx="1" fill="#b5651d"/>
-<line x1="55" y1="61" x2="55" y2="57" stroke="#6e5847" stroke-width="1.5"/><line x1="75" y1="61" x2="75" y2="57" stroke="#6e5847" stroke-width="1.5"/>
-<line x1="95" y1="61" x2="95" y2="57" stroke="#6e5847" stroke-width="1.5"/><line x1="115" y1="61" x2="115" y2="57" stroke="#6e5847" stroke-width="1.5"/>
-<line x1="135" y1="61" x2="135" y2="57" stroke="#6e5847" stroke-width="1.5"/><line x1="65" y1="61" x2="65" y2="57" stroke="#6e5847" stroke-width="1.5"/>
-<line x1="85" y1="61" x2="85" y2="57" stroke="#6e5847" stroke-width="1.5"/><line x1="105" y1="61" x2="105" y2="57" stroke="#6e5847" stroke-width="1.5"/>
-<line x1="125" y1="61" x2="125" y2="57" stroke="#6e5847" stroke-width="1.5"/><line x1="145" y1="61" x2="145" y2="57" stroke="#6e5847" stroke-width="1.5"/>
-<circle cx="50" cy="39" r="6" fill="#c9a96e" opacity="0.9"/><circle cx="75" cy="32" r="8" fill="#b5994e" opacity="0.85"/>
-<circle cx="100" cy="36" r="7" fill="#d4b87a" opacity="0.9"/><circle cx="128" cy="34" r="9" fill="#b08840" opacity="0.85"/>
-<circle cx="150" cy="38" r="5" fill="#c9a96e" opacity="0.9"/>
-<circle cx="60" cy="73" r="2.5" fill="#c9a96e" opacity="0.7"/><circle cx="80" cy="80" r="2" fill="#d4b87a" opacity="0.6"/>
-<circle cx="100" cy="76" r="2.5" fill="#b5994e" opacity="0.7"/><circle cx="120" cy="82" r="2" fill="#c9a96e" opacity="0.6"/>
-<circle cx="140" cy="78" r="2.2" fill="#d4b87a" opacity="0.6"/><circle cx="90" cy="92" r="1.5" fill="#b5994e" opacity="0.4"/>
-</svg>"""
 
 # ── PWA : manifest + meta tags pour installation mobile ──
 PWA_MANIFEST = {
@@ -35,12 +20,12 @@ PWA_MANIFEST = {
     "background_color": "#f6f1e7",
     "theme_color": "#b5651d",
     "orientation": "portrait",
-    "icons": [
-        {"src": "data:image/svg+xml," + LOGO_SVG.replace('"','%22').replace('#','%23').replace('\n',''), "sizes": "any", "type": "image/svg+xml"}
-    ]
+    "icons": []
 }
+_logo_b64 = img_b64(LOGO_GTR)
+if _logo_b64:
+    PWA_MANIFEST["icons"].append({"src": f"data:image/png;base64,{_logo_b64}", "sizes": "512x512", "type": "image/png"})
 
-import urllib.parse
 manifest_json = json.dumps(PWA_MANIFEST)
 manifest_b64 = base64.b64encode(manifest_json.encode()).decode()
 
@@ -70,7 +55,11 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 def show_header():
-    st.markdown(LOGO_SVG, unsafe_allow_html=True)
+    b64 = img_b64(LOGO_GTR)
+    if b64:
+        st.markdown(f'<div style="text-align:center;"><img src="data:image/png;base64,{b64}" width="150"/></div>', unsafe_allow_html=True)
+    else:
+        st.markdown("**Classification GTR2023**")
 
 CREDIT = """<div class="footer-dev">
 <strong>Classification GTR2023</strong> — Développé par <strong>Serigne Mouhamadane SY</strong>,
@@ -526,7 +515,9 @@ def build_pdf(projet_info, sondages):
         def s_multi(self,w,h,txt="",**kw):
             super().multi_cell(w,h,sanitize(txt),**kw)
         def header(self):
-            self.set_font("Helvetica","B",9); self.s_cell(0,5,"UNIVERSITE IBA DER THIAM DE THIES",align="C",new_x="LMARGIN",new_y="NEXT")
+            if LOGO_GTR.exists():
+                self.image(str(LOGO_GTR), 85, 3, 18)
+            self.set_font("Helvetica","B",8); self.s_cell(0,5,"Classification GTR 2023",align="C",new_x="LMARGIN",new_y="NEXT")
             self.set_font("Helvetica","",7); self.s_cell(0,4,f"Projet : {projet_info.get('projet','')} - {projet_info.get('site','')}",align="C",new_x="LMARGIN",new_y="NEXT")
             self.line(10,20,200,20); self.ln(4)
         def footer(self):
@@ -559,7 +550,10 @@ def build_pdf(projet_info, sondages):
     pdf=PDF(); pdf.alias_nb_pages(); pdf.set_auto_page_break(auto=True,margin=20)
 
     # PAGE DE TITRE
-    pdf.add_page(); pdf.ln(60)
+    pdf.add_page(); pdf.ln(15)
+    if LOGO_GTR.exists():
+        pdf.image(str(LOGO_GTR), 75, 25, 60)
+    pdf.ln(55)
     pdf.set_font("Helvetica","B",26); pdf.set_text_color(138,74,20)
     pdf.s_cell(0,14,"CLASSIFICATION GTR 2023",align="C",new_x="LMARGIN",new_y="NEXT")
     pdf.set_font("Helvetica","",13); pdf.set_text_color(110,88,71)
