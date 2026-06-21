@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.claude/
+logo_ecole.png
+logo_app.png
