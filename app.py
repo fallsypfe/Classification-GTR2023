@@ -157,151 +157,161 @@ def get_compacteurs(fam,etat):
         q3=[("V4-V5","Vibrant cylindre lisse"),("P3","Pneus")]
     return {"q4":q4,"q3":q3}
 
+def sanitize(text):
+    """Remplace les caractères Unicode non supportés par Helvetica."""
+    if not isinstance(text, str): return str(text)
+    return (text.replace("—","-").replace("–","-").replace("'","'").replace("'","'")
+            .replace(""",'"').replace(""",'"').replace("…","...")
+            .replace("≥",">=").replace("≤","<=").replace("≠","!=")
+            .replace("ρ","rho").replace("µ","u").replace("→","->")
+            .replace("⚠️","!").replace("✅","OK").replace("❌","NON"))
+
 def build_pdf(projet_info, sondages):
     from fpdf import FPDF
     class PDF(FPDF):
+        def s_cell(self,w,h,txt="",**kw):
+            super().cell(w,h,sanitize(txt),**kw)
+        def s_multi(self,w,h,txt="",**kw):
+            super().multi_cell(w,h,sanitize(txt),**kw)
         def header(self):
-            pass
-            self.set_font("Helvetica","B",9); self.cell(0,5,"UNIVERSITÉ IBA DER THIAM DE THIÈS",align="C",new_x="LMARGIN",new_y="NEXT")
-            self.set_font("Helvetica","",7); self.cell(0,4,f"Projet : {projet_info.get('projet','')} — {projet_info.get('site','')}",align="C",new_x="LMARGIN",new_y="NEXT")
+            self.set_font("Helvetica","B",9); self.s_cell(0,5,"UNIVERSITE IBA DER THIAM DE THIES",align="C",new_x="LMARGIN",new_y="NEXT")
+            self.set_font("Helvetica","",7); self.s_cell(0,4,f"Projet : {projet_info.get('projet','')} - {projet_info.get('site','')}",align="C",new_x="LMARGIN",new_y="NEXT")
             self.line(10,20,200,20); self.ln(4)
         def footer(self):
             self.set_y(-15); self.set_font("Helvetica","I",7)
-            self.cell(0,10,f"Classification GTR2023 — S.M. SY / UIDT — Page {self.page_no()}/{{nb}} — {datetime.now().strftime('%d/%m/%Y')}",align="C")
+            self.s_cell(0,10,f"Classification GTR2023 - S.M. SY / UIDT - Page {self.page_no()}/{{nb}} - {datetime.now().strftime('%d/%m/%Y')}",align="C")
         def chapter_title(self,num,title):
             self.set_font("Helvetica","B",13); self.set_text_color(45,93,107)
-            self.cell(0,10,f"{num}. {title}",new_x="LMARGIN",new_y="NEXT"); self.set_text_color(0,0,0); self.ln(2)
+            self.s_cell(0,10,f"{num}. {title}" if num else title,new_x="LMARGIN",new_y="NEXT"); self.set_text_color(0,0,0); self.ln(2)
         def sub_title(self,t):
             self.set_font("Helvetica","B",10); self.set_text_color(138,74,20)
-            self.cell(0,7,f"  {t}",new_x="LMARGIN",new_y="NEXT"); self.set_text_color(0,0,0)
+            self.s_cell(0,7,f"  {t}",new_x="LMARGIN",new_y="NEXT"); self.set_text_color(0,0,0)
         def param_table(self,params):
             self.set_font("Helvetica","B",8); self.set_fill_color(239,230,212)
-            self.cell(80,6,"Paramètre",border=1,fill=True); self.cell(50,6,"Valeur",border=1,fill=True,new_x="LMARGIN",new_y="NEXT")
+            self.s_cell(80,6,"Parametre",border=1,fill=True); self.s_cell(50,6,"Valeur",border=1,fill=True,new_x="LMARGIN",new_y="NEXT")
             self.set_font("Helvetica","",8)
             for k,v in params.items():
-                self.cell(80,5,k,border=1); self.cell(50,5,str(v),border=1,new_x="LMARGIN",new_y="NEXT")
+                self.s_cell(80,5,k,border=1); self.s_cell(50,5,str(v),border=1,new_x="LMARGIN",new_y="NEXT")
             self.ln(2)
         def code_row(self,codes):
             self.set_font("Helvetica","B",7); self.set_fill_color(46,38,32); self.set_text_color(255,255,255)
-            for r in "EGWTRC": self.cell(14,5,r,border=1,fill=True,align="C")
-            self.cell(14,5,"H",border=1,fill=True,align="C",new_x="LMARGIN",new_y="NEXT")
+            for r in "EGWTRC": self.s_cell(14,5,r,border=1,fill=True,align="C")
+            self.s_cell(14,5,"H",border=1,fill=True,align="C",new_x="LMARGIN",new_y="NEXT")
             self.set_text_color(0,0,0); self.set_font("Courier","B",9)
-            for r in ["E","G","W","T","R","C","H"]: self.cell(14,6,str(codes.get(r,0)),border=1,align="C")
+            for r in ["E","G","W","T","R","C","H"]: self.s_cell(14,6,str(codes.get(r,0)),border=1,align="C")
             self.ln(); self.set_font("Helvetica","",7)
             for r,v in codes.items():
-                if v!=0: self.cell(0,4,f"    {r}{v}: {CODES[r][v]}",new_x="LMARGIN",new_y="NEXT")
+                if v!=0: self.s_cell(0,4,f"    {r}{v}: {CODES[r][v]}",new_x="LMARGIN",new_y="NEXT")
             self.ln(2)
 
     pdf=PDF(); pdf.alias_nb_pages(); pdf.set_auto_page_break(auto=True,margin=20)
 
     # PAGE DE TITRE
-    pdf.add_page(); pdf.ln(20)
-    pass
-    pdf.ln(55)
+    pdf.add_page(); pdf.ln(60)
     pdf.set_font("Helvetica","B",26); pdf.set_text_color(138,74,20)
-    pdf.cell(0,14,"CLASSIFICATION GTR 2023",align="C",new_x="LMARGIN",new_y="NEXT")
+    pdf.s_cell(0,14,"CLASSIFICATION GTR 2023",align="C",new_x="LMARGIN",new_y="NEXT")
     pdf.set_font("Helvetica","",13); pdf.set_text_color(110,88,71)
-    pdf.cell(0,10,"Rapport de classification et conditions d'utilisation",align="C",new_x="LMARGIN",new_y="NEXT")
+    pdf.s_cell(0,10,"Rapport de classification et conditions d'utilisation",align="C",new_x="LMARGIN",new_y="NEXT")
     pdf.ln(8); pdf.set_text_color(0,0,0); pdf.set_font("Helvetica","",11)
-    pdf.cell(0,7,f"Projet : {projet_info.get('projet','')}",align="C",new_x="LMARGIN",new_y="NEXT")
-    pdf.cell(0,7,f"Site : {projet_info.get('site','')}",align="C",new_x="LMARGIN",new_y="NEXT")
-    pdf.cell(0,7,f"Ingénieur : {projet_info.get('ingenieur','')}",align="C",new_x="LMARGIN",new_y="NEXT")
-    pdf.cell(0,7,f"Nombre de sondages : {len(sondages)}",align="C",new_x="LMARGIN",new_y="NEXT")
-    pdf.cell(0,7,f"Date : {datetime.now().strftime('%d/%m/%Y')}",align="C",new_x="LMARGIN",new_y="NEXT")
+    pdf.s_cell(0,7,f"Projet : {projet_info.get('projet','')}",align="C",new_x="LMARGIN",new_y="NEXT")
+    pdf.s_cell(0,7,f"Site : {projet_info.get('site','')}",align="C",new_x="LMARGIN",new_y="NEXT")
+    pdf.s_cell(0,7,f"Ingenieur : {projet_info.get('ingenieur','')}",align="C",new_x="LMARGIN",new_y="NEXT")
+    pdf.s_cell(0,7,f"Nombre de sondages : {len(sondages)}",align="C",new_x="LMARGIN",new_y="NEXT")
+    pdf.s_cell(0,7,f"Date : {datetime.now().strftime('%d/%m/%Y')}",align="C",new_x="LMARGIN",new_y="NEXT")
     pdf.ln(10); pdf.set_font("Helvetica","I",9); pdf.set_text_color(107,95,80)
-    pdf.multi_cell(0,4,"Référentiel : Guide des Terrassements — Éd. 2024 — IDRRIM/Cerema — Fascicules 1 et 2\nConforme NF EN 16907-2",align="C")
+    pdf.s_multi(0,4,"Referentiel : Guide des Terrassements - Ed. 2024 - IDRRIM/Cerema - Fascicules 1 et 2\nConforme NF EN 16907-2",align="C")
     pdf.ln(6); pdf.set_text_color(170,51,51); pdf.set_font("Helvetica","BI",8)
-    pdf.cell(0,5,"Document non officiel — À valider par un géotechnicien qualifié",align="C",new_x="LMARGIN",new_y="NEXT")
+    pdf.s_cell(0,5,"Document non officiel - A valider par un geotechnicien qualifie",align="C",new_x="LMARGIN",new_y="NEXT")
 
     # TABLE DES MATIÈRES
-    pdf.add_page(); pdf.chapter_title("","TABLE DES MATIÈRES"); pdf.set_font("Helvetica","",10)
+    pdf.add_page(); pdf.chapter_title("","TABLE DES MATIERES"); pdf.set_font("Helvetica","",10)
     for i,s in enumerate(sondages,1):
         pdf.set_font("Helvetica","B",10)
-        pdf.cell(0,6,f"Sondage {i} — {s['sondage_id']} : {s['symbole']}",new_x="LMARGIN",new_y="NEXT")
+        pdf.s_cell(0,6,f"Sondage {i} - {s['sondage_id']} : {s['symbole']}",new_x="LMARGIN",new_y="NEXT")
         pdf.set_font("Helvetica","",9)
         for sub in ["Classification","Remblai","Couche de forme","Compactage"]:
             if sub=="Remblai" and not s.get("do_remblai"): continue
             if sub=="Couche de forme" and not s.get("do_cdf"): continue
             if sub=="Compactage" and not s.get("do_compact"): continue
-            pdf.cell(0,5,f"    {sub}",new_x="LMARGIN",new_y="NEXT")
+            pdf.s_cell(0,5,f"    {sub}",new_x="LMARGIN",new_y="NEXT")
 
     # CHAQUE SONDAGE
     for i,s in enumerate(sondages,1):
         pdf.add_page()
         pdf.set_font("Helvetica","B",16); pdf.set_text_color(45,93,107)
-        pdf.cell(0,12,f"SONDAGE {i} — {s['sondage_id']}",align="C",new_x="LMARGIN",new_y="NEXT")
+        pdf.s_cell(0,12,f"SONDAGE {i} - {s['sondage_id']}",align="C",new_x="LMARGIN",new_y="NEXT")
         pdf.set_text_color(0,0,0)
 
         # Classification
         pdf.chapter_title(f"{i}.1","Classification")
         pdf.set_font("Helvetica","B",18); pdf.set_text_color(138,74,20)
-        pdf.cell(0,12,f"  {s['symbole']}",new_x="LMARGIN",new_y="NEXT"); pdf.set_text_color(0,0,0)
-        pdf.set_font("Helvetica","",9); pdf.cell(0,6,f"  {DESC.get(s['sc'],s['sc'])}",new_x="LMARGIN",new_y="NEXT"); pdf.ln(2)
+        pdf.s_cell(0,12,f"  {s['symbole']}",new_x="LMARGIN",new_y="NEXT"); pdf.set_text_color(0,0,0)
+        pdf.set_font("Helvetica","",9); pdf.s_cell(0,6,f"  {DESC.get(s['sc'],s['sc'])}",new_x="LMARGIN",new_y="NEXT"); pdf.ln(2)
         pdf.param_table(s["params"])
         if s.get("etats"):
-            pdf.sub_title("État hydrique")
-            pdf.set_font("Helvetica","B",9); pdf.cell(0,6,f"  État retenu : {s['etat']} ({ETQ.get(s['etat'],'')})",new_x="LMARGIN",new_y="NEXT")
+            pdf.sub_title("Etat hydrique")
+            pdf.set_font("Helvetica","B",9); pdf.s_cell(0,6,f"  Etat retenu : {s['etat']} ({ETQ.get(s['etat'],'')})",new_x="LMARGIN",new_y="NEXT")
             pdf.set_font("Helvetica","",8)
-            for meth,et,val in s["etats"]: pdf.cell(0,4,f"    {meth} = {val} => {et} ({ETQ.get(et,'')})",new_x="LMARGIN",new_y="NEXT")
-            if s.get("insensible"): pdf.set_font("Helvetica","B",8); pdf.cell(0,5,"  Sol insensible à l'eau",new_x="LMARGIN",new_y="NEXT")
+            for meth,et,val in s["etats"]: pdf.s_cell(0,4,f"    {meth} = {val} => {et} ({ETQ.get(et,'')})",new_x="LMARGIN",new_y="NEXT")
+            if s.get("insensible"): pdf.set_font("Helvetica","B",8); pdf.s_cell(0,5,"  Sol insensible a l'eau",new_x="LMARGIN",new_y="NEXT")
 
         # Remblai
         if s.get("do_remblai"):
             pdf.ln(3); pdf.chapter_title(f"{i}.2","Conditions d'utilisation en remblai")
             cond=s.get("remblai_cond")
-            if isinstance(cond,str): pdf.set_font("Helvetica","B",9); pdf.multi_cell(0,5,cond)
+            if isinstance(cond,str): pdf.set_font("Helvetica","B",9); pdf.s_multi(0,5,cond)
             else:
                 for meteo,sols in cond.items():
-                    pdf.set_font("Helvetica","B",8); pdf.cell(0,5,f"  {meteo}",new_x="LMARGIN",new_y="NEXT")
-                    if isinstance(sols,str): pdf.set_font("Helvetica","",8); pdf.cell(0,4,f"    => {sols}",new_x="LMARGIN",new_y="NEXT")
+                    pdf.set_font("Helvetica","B",8); pdf.s_cell(0,5,f"  {meteo}",new_x="LMARGIN",new_y="NEXT")
+                    if isinstance(sols,str): pdf.set_font("Helvetica","",8); pdf.s_cell(0,4,f"    => {sols}",new_x="LMARGIN",new_y="NEXT")
                     else:
                         for sol_nom,codes in sols:
-                            pdf.set_font("Helvetica","I",8); pdf.cell(0,4,f"    Solution : {sol_nom}",new_x="LMARGIN",new_y="NEXT")
+                            pdf.set_font("Helvetica","I",8); pdf.s_cell(0,4,f"    Solution : {sol_nom}",new_x="LMARGIN",new_y="NEXT")
                             pdf.set_x(18); pdf.code_row(codes)
 
         # CdF
         if s.get("do_cdf"):
             pdf.ln(2); pdf.chapter_title(f"{i}.3","Couche de forme")
             cdf=s.get("cdf_result",{})
-            pdf.set_font("Helvetica","",9); pdf.multi_cell(0,5,cdf.get("texte",""))
-            if cdf.get("traitement"): pdf.set_font("Helvetica","B",8); pdf.cell(0,5,f"  Traitement : {cdf['traitement']}",new_x="LMARGIN",new_y="NEXT")
+            pdf.set_font("Helvetica","",9); pdf.s_multi(0,5,cdf.get("texte",""))
+            if cdf.get("traitement"): pdf.set_font("Helvetica","B",8); pdf.s_cell(0,5,f"  Traitement : {cdf['traitement']}",new_x="LMARGIN",new_y="NEXT")
             if cdf.get("params_meca"): pdf.param_table(cdf["params_meca"])
 
         # Compactage
         if s.get("do_compact"):
             pdf.ln(2); pdf.chapter_title(f"{i}.4","Compactage")
             pdf.set_font("Helvetica","B",8); pdf.set_fill_color(239,230,212)
-            for h in ["Objectif","Ouvrage","ρdm","ρdfc"]: pdf.cell(35,5,h,border=1,fill=True)
+            for h in ["Objectif","Ouvrage","rhodm","rhodfc"]: pdf.s_cell(35,5,h,border=1,fill=True)
             pdf.ln(); pdf.set_font("Helvetica","",8)
-            for obj,ouv,dm,dfc in [("q4","Remblais/PST","≥95% ρdOPN","≥92% ρdOPN"),("q3","CdF","≥98,5% ρdOPN","≥96% ρdOPN")]:
-                for v in [obj,ouv,dm,dfc]: pdf.cell(35,4,v,border=1)
+            for obj,ouv,dm,dfc in [("q4","Remblais/PST",">=95% rhodOPN",">=92% rhodOPN"),("q3","CdF",">=98,5% rhodOPN",">=96% rhodOPN")]:
+                for v in [obj,ouv,dm,dfc]: pdf.s_cell(35,4,v,border=1)
                 pdf.ln()
             pdf.ln(2)
             comp=s.get("compacteurs",{})
             if comp.get("q4"):
-                pdf.set_font("Helvetica","B",8); pdf.cell(0,5,"  Remblai (q4):",new_x="LMARGIN",new_y="NEXT"); pdf.set_font("Helvetica","",8)
-                for eng,d2 in comp["q4"]: pdf.cell(0,4,f"    - {eng}: {d2}",new_x="LMARGIN",new_y="NEXT")
+                pdf.set_font("Helvetica","B",8); pdf.s_cell(0,5,"  Remblai (q4):",new_x="LMARGIN",new_y="NEXT"); pdf.set_font("Helvetica","",8)
+                for eng,d2 in comp["q4"]: pdf.s_cell(0,4,f"    - {eng}: {d2}",new_x="LMARGIN",new_y="NEXT")
             if comp.get("q3"):
-                pdf.set_font("Helvetica","B",8); pdf.cell(0,5,"  CdF (q3):",new_x="LMARGIN",new_y="NEXT"); pdf.set_font("Helvetica","",8)
-                for eng,d2 in comp["q3"]: pdf.cell(0,4,f"    - {eng}: {d2}",new_x="LMARGIN",new_y="NEXT")
+                pdf.set_font("Helvetica","B",8); pdf.s_cell(0,5,"  CdF (q3):",new_x="LMARGIN",new_y="NEXT"); pdf.set_font("Helvetica","",8)
+                for eng,d2 in comp["q3"]: pdf.s_cell(0,4,f"    - {eng}: {d2}",new_x="LMARGIN",new_y="NEXT")
 
     # SYNTHÈSE
-    pdf.add_page(); pdf.chapter_title("","SYNTHÈSE GÉNÉRALE")
+    pdf.add_page(); pdf.chapter_title("","SYNTHESE GENERALE")
     pdf.set_font("Helvetica","B",8); pdf.set_fill_color(239,230,212)
-    for h in ["Sondage","Classe","État","Remblai","CdF"]: pdf.cell(32,6,h,border=1,fill=True,align="C")
+    for h in ["Sondage","Classe","Etat","Remblai","CdF"]: pdf.s_cell(32,6,h,border=1,fill=True,align="C")
     pdf.ln(); pdf.set_font("Helvetica","",8)
     for s in sondages:
-        pdf.cell(32,5,s["sondage_id"],border=1,align="C")
-        pdf.cell(32,5,s["symbole"],border=1,align="C")
-        pdf.cell(32,5,ETQ.get(s.get("etat",""),""),border=1,align="C")
-        pdf.cell(32,5,"Oui" if s.get("do_remblai") and not isinstance(s.get("remblai_cond"),str) else "Étude",border=1,align="C")
+        pdf.s_cell(32,5,s["sondage_id"],border=1,align="C")
+        pdf.s_cell(32,5,s["symbole"],border=1,align="C")
+        pdf.s_cell(32,5,ETQ.get(s.get("etat",""),""),border=1,align="C")
+        pdf.s_cell(32,5,"Oui" if s.get("do_remblai") and not isinstance(s.get("remblai_cond"),str) else "Etude",border=1,align="C")
         cdf=s.get("cdf_result",{})
-        pdf.cell(32,5,"Oui" if "Utilisable" in cdf.get("texte","") else "Traitement" if cdf.get("traitement") else "-",border=1,align="C")
+        pdf.s_cell(32,5,"Oui" if "Utilisable" in cdf.get("texte","") else "Traitement" if cdf.get("traitement") else "-",border=1,align="C")
         pdf.ln()
 
     pdf.ln(8); pdf.set_font("Helvetica","I",8); pdf.set_text_color(107,95,80)
-    pdf.multi_cell(0,4,"Ce rapport a été généré par l'outil Classification GTR2023 développé par Serigne Mouhamadane SY (UIDT). "
-    "Il constitue un aide-mémoire et ne se substitue pas à l'analyse d'un géotechnicien qualifié ni à la lecture du GTR 2023 (IDRRIM/Cerema).")
+    pdf.s_multi(0,4,"Ce rapport a ete genere par l'outil Classification GTR2023 developpe par Serigne Mouhamadane SY (UIDT). "
+    "Il constitue un aide-memoire et ne se substitue pas a l'analyse d'un geotechnicien qualifie ni a la lecture du GTR 2023 (IDRRIM/Cerema).")
 
     buf=BytesIO(); pdf.output(buf); buf.seek(0); return buf
 
