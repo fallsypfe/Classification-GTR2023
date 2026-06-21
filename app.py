@@ -340,22 +340,14 @@ if st.session_state.step==0:
     st.markdown("### Bienvenue")
     st.markdown("Renseignez les informations du projet pour commencer.")
     st.divider()
-    projet=st.text_input("Nom du projet *",placeholder="Ex : Autoroute Ila Touba — Lot 3")
-    site=st.text_input("Nom du site *",placeholder="Ex : PK 12+500 à PK 15+000")
-    nb_sondages=st.number_input("Nombre de sondages prévus *",1,100,value=None,placeholder="Ex : 5")
-    ingenieur=st.text_input("Nom de l'ingénieur *",placeholder="Ex : M. Diallo, Ing. géotechnicien")
+    projet=st.text_input("Nom du projet",placeholder="Ex : Autoroute Ila Touba — Lot 3")
+    site=st.text_input("Nom du site",placeholder="Ex : PK 12+500 à PK 15+000")
+    nb_sondages=st.number_input("Nombre de sondages prévus",1,100,value=1)
+    ingenieur=st.text_input("Nom de l'ingénieur",placeholder="Ex : M. Diallo, Ing. géotechnicien")
     st.divider()
-    errors=[]
     if st.button("▶ Commencer",type="primary",use_container_width=True):
-        if not projet: errors.append("Nom du projet")
-        if not site: errors.append("Nom du site")
-        if nb_sondages is None: errors.append("Nombre de sondages")
-        if not ingenieur: errors.append("Nom de l'ingénieur")
-        if errors:
-            st.error(f"Champs obligatoires manquants : {', '.join(errors)}")
-        else:
-            st.session_state.projet_info={"projet":projet,"site":site,"nb_sondages":int(nb_sondages),"ingenieur":ingenieur}
-            go(1); st.rerun()
+        st.session_state.projet_info={"projet":projet or "","site":site or "","nb_sondages":int(nb_sondages),"ingenieur":ingenieur or ""}
+        go(1); st.rerun()
     st.markdown(CREDIT, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════
