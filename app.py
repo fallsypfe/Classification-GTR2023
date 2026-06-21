@@ -740,4 +740,4 @@ elif st.session_state.step==8:
 
 # PIED DE PAGE
 st.divider()
-st.markdown(CREDIT, unsafe_allow_html=True)
+st.caption("Classification GTR2023 - S.M. SY / UIDT - Fascicules 1 et 2 (IDRRIM/Cerema, ed. 2024)")
