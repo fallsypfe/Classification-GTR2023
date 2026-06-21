@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
-import base64
+import base64, json
 
 st.set_page_config(page_title="Classification GTR2023", page_icon="⏳", layout="centered")
 
@@ -355,6 +355,20 @@ def new_sondage():
     st.session_state.step=1
     if "cur" in st.session_state: del st.session_state["cur"]
 
+def save_project():
+    data={"projet_info":st.session_state.projet_info,"sondages":st.session_state.sondages,
+          "date_sauvegarde":datetime.now().strftime("%d/%m/%Y %H:%M")}
+    return json.dumps(data, ensure_ascii=False, indent=2)
+
+def load_project(content):
+    data=json.loads(content)
+    st.session_state.projet_info=data["projet_info"]
+    st.session_state.sondages=data.get("sondages",[])
+    if st.session_state.sondages:
+        st.session_state.step=7
+    else:
+        st.session_state.step=1
+
 show_header()
 
 # ══════════════════════════════════════════════════════════════════
@@ -363,16 +377,49 @@ show_header()
 if st.session_state.step==0:
     st.title("Classification GTR2023")
     st.markdown("### Bienvenue")
-    st.markdown("Renseignez les informations du projet pour commencer.")
-    st.divider()
-    projet=st.text_input("Nom du projet",placeholder="Ex : Autoroute Ila Touba — Lot 3")
-    site=st.text_input("Nom du site",placeholder="Ex : PK 12+500 à PK 15+000")
-    nb_sondages=st.number_input("Nombre de sondages prévus",1,100,value=1)
-    ingenieur=st.text_input("Nom de l'ingénieur",placeholder="Ex : M. Diallo, Ing. géotechnicien")
-    st.divider()
-    if st.button("▶ Commencer",type="primary",use_container_width=True):
-        st.session_state.projet_info={"projet":projet or "","site":site or "","nb_sondages":int(nb_sondages),"ingenieur":ingenieur or ""}
-        go(1); st.rerun()
+
+    tab_new, tab_open = st.tabs(["📄 Nouveau projet", "📂 Ouvrir un projet"])
+
+    with tab_new:
+        st.markdown("Renseignez les informations du projet pour commencer.")
+        projet=st.text_input("Nom du projet",placeholder="Ex : Autoroute Ila Touba — Lot 3")
+        site=st.text_input("Nom du site",placeholder="Ex : PK 12+500 à PK 15+000")
+        nb_sondages=st.number_input("Nombre de sondages prévus",1,100,value=1)
+        ingenieur=st.text_input("Nom de l'ingénieur",placeholder="Ex : M. Diallo, Ing. géotechnicien")
+        st.divider()
+        if st.button("▶ Commencer un nouveau projet",type="primary",use_container_width=True):
+            st.session_state.projet_info={"projet":projet or "","site":site or "","nb_sondages":int(nb_sondages),"ingenieur":ingenieur or ""}
+            go(1); st.rerun()
+
+    with tab_open:
+        st.markdown("Chargez un projet sauvegardé précédemment (fichier `.json`).")
+        uploaded = st.file_uploader("Sélectionner le fichier projet", type=["json"], label_visibility="collapsed")
+        if uploaded is not None:
+            try:
+                content = uploaded.read().decode("utf-8")
+                data = json.loads(content)
+                pi = data.get("projet_info", {})
+                sondages = data.get("sondages", [])
+                date_sauv = data.get("date_sauvegarde", "")
+
+                st.success(f"✅ Projet chargé : **{pi.get('projet', 'Sans nom')}**")
+                st.markdown(f"- **Site** : {pi.get('site', '-')}")
+                st.markdown(f"- **Ingénieur** : {pi.get('ingenieur', '-')}")
+                st.markdown(f"- **Sondages enregistrés** : {len(sondages)}")
+                if date_sauv:
+                    st.markdown(f"- **Sauvegardé le** : {date_sauv}")
+
+                if sondages:
+                    with st.expander(f"📋 {len(sondages)} sondage(s) dans le projet"):
+                        for s in sondages:
+                            st.markdown(f"• **{s['sondage_id']}** → {s['symbole']} ({DESC.get(s['sc'], s['sc'])})")
+
+                if st.button("▶ Ouvrir ce projet", type="primary", use_container_width=True):
+                    load_project(content)
+                    st.rerun()
+            except Exception as e:
+                st.error(f"❌ Fichier invalide : {e}")
+
     st.markdown(CREDIT, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════
@@ -693,13 +740,19 @@ elif st.session_state.step==7:
     remaining=pi["nb_sondages"]-len(sondages)
     if remaining>0:
         st.info(f"Il reste **{remaining} sondage(s)** à saisir sur les {pi['nb_sondages']} prévus.")
-    c1,c2=st.columns(2)
+    c1,c2,c3=st.columns(3)
     with c1:
-        if st.button(f"➕ Ajouter un sondage",type="primary",use_container_width=True):
+        if st.button("➕ Ajouter un sondage",type="primary",use_container_width=True):
             new_sondage(); st.rerun()
     with c2:
         if st.button("📥 Générer le rapport PDF",use_container_width=True):
             go(8); st.rerun()
+    with c3:
+        proj_json = save_project()
+        nom_projet = pi.get("projet","projet")[:30].replace(" ","_") or "projet"
+        st.download_button("💾 Sauvegarder le projet", data=proj_json,
+            file_name=f"GTR2023_{nom_projet}_{datetime.now().strftime('%Y%m%d')}.json",
+            mime="application/json", use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════════
 # ÉTAPE 8 — RAPPORT FINAL
@@ -749,10 +802,16 @@ elif st.session_state.step==8:
     nom=f"Rapport_GTR2023_{pi['projet'][:20]}_{datetime.now().strftime('%Y%m%d')}.pdf"
     st.download_button("📥 Télécharger le rapport PDF complet",data=pdf_buf,file_name=nom,mime="application/pdf",use_container_width=True,type="primary")
     st.divider()
-    c1,c2=st.columns(2)
+    c1,c2,c3=st.columns(3)
     with c1:
         if st.button("➕ Ajouter un sondage",use_container_width=True): new_sondage(); st.rerun()
     with c2:
+        proj_json = save_project()
+        nom_projet = pi.get("projet","projet")[:30].replace(" ","_") or "projet"
+        st.download_button("💾 Sauvegarder le projet", data=proj_json,
+            file_name=f"GTR2023_{nom_projet}_{datetime.now().strftime('%Y%m%d')}.json",
+            mime="application/json", use_container_width=True)
+    with c3:
         if st.button("🔄 Nouveau projet",use_container_width=True): reset_all(); st.rerun()
 
 # PIED DE PAGE
