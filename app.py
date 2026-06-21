@@ -516,23 +516,51 @@ elif st.session_state.step==2:
         for meth,et,val in d["etats"]: st.markdown(f"• {meth}={val} → **{et}** ({ETQ.get(et,'')})")
     st.divider()
 
-    if d["type"] in ("organique","vc","roche"):
-        if d["type"]=="organique":
-            if d["sc"]=="O1": st.markdown("• **Remblai**: ✅ Oui (H<10m) • **CdF**: ✅ si MO<3%")
-            elif d["sc"]=="O2": st.markdown("• **Remblai**: ⚠️ Merlons • **CdF**: ❌")
-            elif d["sc"]=="O3": st.markdown("• **Remblai**: ❌ • **CdF**: ❌")
-            else: st.success("MO<2% — Classifier comme sol meuble ou roche.")
-        elif d["type"]=="vc": st.info(f"Sol VC — conditions de la classe {d.get('vc_sc063','')} (fraction 0/63mm).")
-        elif d["type"]=="roche":
-            la_v=d.get("la",99); mde_v=d.get("mde",99)
-            if la_v<=45 and mde_v<=45: st.success(f"✅ LA={la_v}≤45, MDE={mde_v}≤45 — Utilisable remblai et CdF.")
-            else: st.warning(f"⚠️ LA={la_v} ou MDE={mde_v}>45 — CdF non utilisable sans traitement.")
+    if d["type"]=="organique":
+        if d["sc"]=="O1": st.markdown("• **Remblai**: ✅ Oui (H<10m)\n• **CdF**: ✅ Avec étude si MO > 3 %")
+        elif d["sc"]=="O2": st.markdown("• **Remblai**: ⚠️ Merlons, surfaces enherbées\n• **CdF**: ❌ Non")
+        elif d["sc"]=="O3": st.markdown("• **Remblai**: ❌ Non\n• **CdF**: ❌ Non")
+        else: st.success("MO < 2 % — Classifier comme sol meuble ou roche.")
+        d["do_remblai"]=False;d["do_cdf"]=False;d["do_compact"]=False
         if st.button("💾 Enregistrer ce sondage",type="primary",use_container_width=True):
             st.session_state.sondages.append(d); go(7); st.rerun()
-    else:
+    elif d["type"]=="vc":
+        st.info(f"Sol VC — le comportement est contrôlé par la fraction 0/63 mm (classe {d.get('vc_sc063','')}).")
+        st.markdown("**Souhaitez-vous détailler les conditions d'utilisation ?**")
         c1,c2=st.columns(2)
         with c1:
-            if st.button("▶ Continuer",type="primary",use_container_width=True):
+            if st.button("▶ Continuer (remblai, CdF, compactage)",type="primary",use_container_width=True):
+                d["famille"]=d.get("vc_fam063","G"); d["sc_orig"]=d["sc"]; d["sc"]=d.get("vc_sc063","G1")
+                go(3 if d["sc"][0] in "SG" else 4); st.rerun()
+        with c2:
+            if st.button("💾 Enregistrer sans détail",use_container_width=True):
+                d["do_remblai"]=False;d["do_cdf"]=False;d["do_compact"]=False
+                st.session_state.sondages.append(d); go(7); st.rerun()
+    elif d["type"]=="roche":
+        la_v=d.get("la",99); mde_v=d.get("mde",99)
+        st.markdown("**Aperçu :**")
+        if d["sc"].startswith("SR"): st.error("⚠️ Roches salines — études spécifiques obligatoires.")
+        elif la_v<=45 and mde_v<=45: st.success(f"✅ LA={la_v} ≤ 45, MDE={mde_v} ≤ 45 — Utilisable en remblai et CdF.")
+        else: st.warning(f"⚠️ LA={la_v} ou MDE={mde_v} > 45 — CdF non utilisable sans traitement.")
+        st.markdown("**Souhaitez-vous détailler les conditions d'utilisation ?**")
+        c1,c2=st.columns(2)
+        with c1:
+            if st.button("▶ Continuer (remblai, CdF, compactage)",type="primary",use_container_width=True):
+                cdf_ok=la_v<=45 and mde_v<=45
+                d["do_remblai"]=True;d["remblai_cond"]="Matériau rocheux — se reporter au Fascicule 2, Annexe 2."
+                d["do_cdf"]=True;d["cdf_result"]={"texte":f"LA={la_v}, MDE={mde_v} — {'Utilisable' if cdf_ok else 'Non utilisable'}",
+                    "params_meca":{"LA":str(la_v),"MDE":str(mde_v)},"traitement":"" if cdf_ok else "Traitement/substitution"}
+                d["do_compact"]=True;d["compacteurs"]={"q4":[("V4-V5","Vibrant lisse"),("P3","Pneus")],"q3":[("V5","Vibrant lisse")]}
+                st.session_state.sondages.append(d); go(7); st.rerun()
+        with c2:
+            if st.button("💾 Enregistrer sans détail",use_container_width=True):
+                d["do_remblai"]=False;d["do_cdf"]=False;d["do_compact"]=False
+                st.session_state.sondages.append(d); go(7); st.rerun()
+    else:
+        st.markdown("**Souhaitez-vous continuer vers les conditions d'utilisation ?**")
+        c1,c2=st.columns(2)
+        with c1:
+            if st.button("▶ Continuer (remblai, CdF, compactage)",type="primary",use_container_width=True):
                 go(3 if d["sc"][0] in "SG" else 4); st.rerun()
         with c2:
             if st.button("💾 Enregistrer sans détail",use_container_width=True):
