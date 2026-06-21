@@ -112,6 +112,38 @@ CARACTERES = {
     "G4": "Graves silteuses/argileuses mal graduées. Teneur en fines les rend impropres au drainage. Emploi en couche de forme non traitée : mesure de LA et MDE nécessaire.",
 }
 ETQ={"th":"très humide","h":"humide","m":"moyen","s":"sec","ts":"très sec","ins":"insensible à l'eau"}
+
+OBS_REMBLAI = {
+    "F1": {"th": "Sol non traficable. Portance quasi nulle.", "h": "Portance faible. Mise en oeuvre difficile. Matelassage a eviter en arase.", "m": "Conditions optimales de mise en oeuvre.", "s": "IPI eleve mais risque de desordres en presence d'eau d'infiltration (remblais moyens/grands).", "ts": "Non reutilisable en conditions courantes."},
+    "F2": {"th": "Sol non traficable.", "h": "Sols difficiles a mettre en oeuvre. Depot provisoire et drainage non envisageables en climat francais moyen.", "m": "Conditions optimales.", "s": "Surcompactage possible mais attention aux remblais de grande hauteur.", "ts": "Non reutilisable en conditions courantes."},
+    "F3": {"th": "Non reutilisable.", "h": "Tres coherents et collants. L'aeration est peu efficace du fait de la faible permeabilite.", "m": "Conditions optimales mais sols tres coherents.", "s": "Humidification necessaire, penetration de l'eau tres lente.", "ts": "Non reutilisable."},
+    "F4": {"th": "Non reutilisable.", "h": "Emploi en remblai de faible hauteur uniquement, avec traitement.", "m": "Traitement necessaire meme en etat moyen pour remblai de faible hauteur.", "s": "Humidification et traitement necessaires.", "ts": "Non reutilisable."},
+    "I1": {"th": "Non traficable.", "h": "Comportement proche des sols F. Mise en oeuvre difficile.", "m": "Conditions optimales.", "s": "Humidification ou surcompactage.", "ts": "Non reutilisable."},
+    "I2": {"th": "Non traficable.", "h": "Influence des fines preponderante. Sensibilite a l'eau elevee.", "m": "Conditions optimales.", "s": "Humidification necessaire.", "ts": "Non reutilisable."},
+}
+
+# PST simplified determination
+PST_RULES = {
+    "R3": "PST0", "R4": "PST1", "R5": "PST2",
+    "S1": "PST1", "S2": "PST1", "G1": "PST1", "G2": "PST1",
+}
+def get_pst(sc, etat, famille):
+    """Simplified PST determination based on GTR 2023."""
+    if sc.startswith("R") and sc not in ("R3","R4","R5"):
+        return None, "PST non determine pour cette classe de roche."
+    if sc in PST_RULES:
+        return PST_RULES[sc], None
+    if sc in ("S3","S4","G3","G4"):
+        if etat in ("m","ins"): return "PST2", None
+        if etat == "h": return "PST3", None
+        if etat == "s": return "PST2", "Humidification necessaire."
+        return None, "Etat incompatible — etude specifique."
+    if famille in ("F","I"):
+        if etat in ("m","ins"): return "PST3", None
+        if etat == "h": return "PST4", None
+        if etat == "s": return "PST3", "Humidification necessaire."
+        return None, "Etat incompatible — etude specifique."
+    return None, "PST non determine."
 SEUILS_WN={"F1":(1.25,1.10,0.90,0.70),"F2":(1.30,1.10,0.90,0.70),"F3":(1.40,1.20,0.90,0.70),
 "F4":(1.40,1.20,0.90,0.70),"I1":(1.25,1.10,0.90,0.60),"I2":(1.30,1.10,0.90,0.70)}
 SEUILS_IPI={"F1":(3,8,25),"F2":(2,6,15),"F3":(2,4,10),"F4":(1,3,10),"I1":(5,12,30),"I2":(4,10,25)}
@@ -173,6 +205,33 @@ def calc_etat(sc,wn,wopn,ipi,ic,p2):
         res.append(("Ic",e,f"{ic:.2f}"))
     return res
 
+def resolve_etat(etats):
+    """Resolve divergent hydric state methods. Returns (etat, divergence_message_or_None)."""
+    if not etats:
+        return "m", None
+    if len(etats) == 1:
+        return etats[0][1], None
+    states = {e[1] for e in etats}
+    if len(states) == 1:
+        return etats[0][1], None
+    # Divergence: apply priority rules
+    ipi_etat = None; wn_etat = None; ic_etat = None
+    for meth, et, val in etats:
+        if meth == "IPI": ipi_etat = et
+        elif meth == "wn/wOPN": wn_etat = et
+        elif meth == "Ic": ic_etat = et
+    # IPI more reliable for wet states
+    if ipi_etat in ("h", "th"):
+        msg = f"Divergence etats hydriques. IPI privilegie (etat humide/tres humide plus fiable par IPI)."
+        return ipi_etat, msg
+    # wn/wOPN more reliable for dry states
+    if wn_etat in ("s", "ts"):
+        msg = f"Divergence etats hydriques. wn/wOPN privilegie (etat sec/tres sec plus fiable par wn/wOPN)."
+        return wn_etat, msg
+    # Otherwise take first
+    methods_str = ", ".join(f"{m}={v}->{e}" for m, e, v in etats)
+    return etats[0][1], f"Divergence etats hydriques ({methods_str}). Premier resultat retenu."
+
 def check_ins(sc,p63,vbs,cbri):
     if sc[0] not in "SG": return False
     if p63<=5 and vbs is not None and vbs<0.2: return True
@@ -213,13 +272,65 @@ def get_compacteurs(fam,etat):
     return {"q4":q4,"q3":q3}
 
 def sanitize(text):
-    """Remplace les caractères Unicode non supportés par Helvetica."""
+    """Remplace les caractères Unicode non supportés par Helvetica (Latin-1)."""
     if not isinstance(text, str): return str(text)
-    return (text.replace("—","-").replace("–","-").replace("'","'").replace("'","'")
-            .replace(""",'"').replace(""",'"').replace("…","...")
-            .replace("≥",">=").replace("≤","<=").replace("≠","!=")
-            .replace("ρ","rho").replace("µ","u").replace("→","->")
-            .replace("⚠️","!").replace("✅","OK").replace("❌","NON"))
+    replacements = {
+        "—": "-", "–": "-", "‘": "'", "’": "'",
+        "“": '"', "”": '"', "…": "...",
+        "≥": ">=", "≤": "<=", "≠": "!=",
+        "ρ": "rho", "µ": "u", "→": "->",
+        "✅": "OK", "❌": "NON", "⚠️": "!",
+        "⚠": "!", "•": "-",
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    return text
+
+def build_excel(projet_info, sondages):
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Synthese"
+    headers = ["Sondage", "Classe", "Etat", "Remblai", "CdF", "Compactage", "PST"]
+    header_fill = PatternFill(start_color="B5651D", end_color="B5651D", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF")
+    for col, h in enumerate(headers, 1):
+        c = ws.cell(row=1, column=col, value=h)
+        c.fill = header_fill; c.font = header_font; c.alignment = Alignment(horizontal="center")
+    for row, s in enumerate(sondages, 2):
+        ws.cell(row=row, column=1, value=s["sondage_id"])
+        ws.cell(row=row, column=2, value=s["symbole"])
+        ws.cell(row=row, column=3, value=ETQ.get(s.get("etat",""), ""))
+        ws.cell(row=row, column=4, value="Oui" if s.get("do_remblai") and not isinstance(s.get("remblai_cond"), str) else "Etude")
+        cdf = s.get("cdf_result", {})
+        ws.cell(row=row, column=5, value=cdf.get("texte", "-"))
+        ws.cell(row=row, column=6, value="Oui" if s.get("do_compact") else "-")
+        ws.cell(row=row, column=7, value=s.get("pst", "-"))
+    for col in ws.columns:
+        max_len = max(len(str(c.value or "")) for c in col)
+        ws.column_dimensions[col[0].column_letter].width = min(max_len + 4, 40)
+    # Sheet 2: Details
+    ws2 = wb.create_sheet("Details")
+    detail_headers = ["Sondage", "Type", "Famille", "Sous-classe", "Etat", "Parametres", "Observations remblai"]
+    for col, h in enumerate(detail_headers, 1):
+        c = ws2.cell(row=1, column=col, value=h)
+        c.fill = header_fill; c.font = header_font
+    for row, s in enumerate(sondages, 2):
+        ws2.cell(row=row, column=1, value=s["sondage_id"])
+        ws2.cell(row=row, column=2, value=s.get("type", ""))
+        ws2.cell(row=row, column=3, value=s.get("famille", ""))
+        ws2.cell(row=row, column=4, value=s.get("sc", ""))
+        ws2.cell(row=row, column=5, value=ETQ.get(s.get("etat",""), ""))
+        ws2.cell(row=row, column=6, value="; ".join(f"{k}={v}" for k, v in s.get("params", {}).items()))
+        ws2.cell(row=row, column=7, value=s.get("obs_remblai", ""))
+    for col in ws2.columns:
+        max_len = max(len(str(c.value or "")) for c in col)
+        ws2.column_dimensions[col[0].column_letter].width = min(max_len + 4, 50)
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf
 
 def build_pdf(projet_info, sondages):
     from fpdf import FPDF
@@ -312,6 +423,10 @@ def build_pdf(projet_info, sondages):
             pdf.set_font("Helvetica","B",9); pdf.s_cell(0,6,f"  Etat retenu : {s['etat']} ({ETQ.get(s['etat'],'')})",new_x="LMARGIN",new_y="NEXT")
             pdf.set_font("Helvetica","",8)
             for meth,et,val in s["etats"]: pdf.s_cell(0,4,f"    {meth} = {val} => {et} ({ETQ.get(et,'')})",new_x="LMARGIN",new_y="NEXT")
+            if s.get("divergence"):
+                pdf.set_font("Helvetica","I",7); pdf.set_text_color(170,51,51)
+                pdf.s_cell(0,4,f"  {s['divergence']}",new_x="LMARGIN",new_y="NEXT")
+                pdf.set_text_color(0,0,0)
             if s.get("insensible"): pdf.set_font("Helvetica","B",8); pdf.s_cell(0,5,"  Sol insensible a l'eau",new_x="LMARGIN",new_y="NEXT")
 
         # Remblai
@@ -327,6 +442,10 @@ def build_pdf(projet_info, sondages):
                         for sol_nom,codes in sols:
                             pdf.set_font("Helvetica","I",8); pdf.s_cell(0,4,f"    Solution : {sol_nom}",new_x="LMARGIN",new_y="NEXT")
                             pdf.set_x(18); pdf.code_row(codes)
+                obs_txt = s.get("obs_remblai")
+                if obs_txt:
+                    pdf.set_font("Helvetica","B",8); pdf.s_cell(0,5,"  Observations (Fascicule 2) :",new_x="LMARGIN",new_y="NEXT")
+                    pdf.set_font("Helvetica","I",8); pdf.s_multi(0,4,f"  {obs_txt}")
 
         # CdF
         if s.get("do_cdf"):
@@ -335,6 +454,8 @@ def build_pdf(projet_info, sondages):
             pdf.set_font("Helvetica","",9); pdf.s_multi(0,5,cdf.get("texte",""))
             if cdf.get("traitement"): pdf.set_font("Helvetica","B",8); pdf.s_cell(0,5,f"  Traitement : {cdf['traitement']}",new_x="LMARGIN",new_y="NEXT")
             if cdf.get("params_meca"): pdf.param_table(cdf["params_meca"])
+            if s.get("pst"):
+                pdf.set_font("Helvetica","B",9); pdf.s_cell(0,6,f"  Classe PST simplifiee : {s['pst']}",new_x="LMARGIN",new_y="NEXT")
 
         # Compactage
         if s.get("do_compact"):
@@ -500,7 +621,7 @@ elif st.session_state.step==1:
             if p63 is not None and p63<15 and p2 is None: errors.append("Passant 2 mm (obligatoire si passant 63µm < 15%)")
             if errors: st.error(f"⚠ {' — '.join(errors)}")
             else:
-                fam,sc=classify(p63,p2,ip,vbs,cu); etats=calc_etat(sc,wn,wopn,ipi,ic,p2); etat=etats[0][1] if etats else "m"
+                fam,sc=classify(p63,p2,ip,vbs,cu); etats=calc_etat(sc,wn,wopn,ipi,ic,p2); etat,divergence_msg=resolve_etat(etats)
                 if fam in ("S","G") and cu is None:
                     st.warning(f"⚠ Cu non renseigné — le sol est classé avec Cu < 6 par défaut ({sc}). Pour une classification précise des sols S et G, le Cu est recommandé.")
                 params={"Pass. 63µm":f"{p63:.1f}%"}
@@ -513,7 +634,7 @@ elif st.session_state.step==1:
                 if ipi is not None: params["IPI"]=f"{ipi:.1f}"
                 if ic is not None: params["Ic"]=f"{ic:.2f}"
                 st.session_state.cur={"type":"sol","sondage_id":sondage_id,"famille":fam,"sc":sc,"etat":etat,"etats":etats,"insensible":False,
-                    "symbole":sc+etat,"params":params,"p63":p63,"p2":p2,"vbs_val":vbs}
+                    "symbole":sc+etat,"params":params,"p63":p63,"p2":p2,"vbs_val":vbs,"divergence":divergence_msg}
                 go(2); st.rerun()
 
     elif "gros éléments" in mat_type:
@@ -581,6 +702,20 @@ elif st.session_state.step==1:
                     elif rho_d>1.70: sc_r="CH2"
                     elif rho_d>1.55: sc_r="CH3"+("h" if wn_ch>=27 else "m" if wn_ch>=22 else "s" if wn_ch>=18 else "ts")
                     else: sc_r="CH4"+("th" if wn_ch>=31 else "h" if wn_ch>=26 else "m" if wn_ch>=21 else "s" if wn_ch>=16 else "ts")
+                elif roche in ("Cl","Sa","Co","Vo","Me"):
+                    # Sub-classification R3/R4/R5 based on IFR and IDGa
+                    if ifr is not None and idga is not None:
+                        if ifr > 14 or idga > 20: sc_r = roche + "-R5"
+                        elif ifr > 7 or idga > 5: sc_r = roche + "-R4"
+                        else: sc_r = roche + "-R3"
+                    elif ifr is not None:
+                        if ifr > 14: sc_r = roche + "-R5"
+                        elif ifr > 7: sc_r = roche + "-R4"
+                        else: sc_r = roche + "-R3"
+                    elif idga is not None:
+                        if idga > 20: sc_r = roche + "-R5"
+                        elif idga > 5: sc_r = roche + "-R4"
+                        else: sc_r = roche + "-R3"
                 cdf_ok=la_r<=45 and mde_r<=45
                 st.session_state.cur={"type":"roche","sondage_id":sondage_id,"famille":"R","sc":sc_r,"scm":sc_r,"etat":None,"symbole":sc_r,
                     "insensible":False,"etats":[],"params":params,"p2":None,"la":la_r,"mde":mde_r,
@@ -618,6 +753,8 @@ elif st.session_state.step==2:
     if d["etats"]:
         st.markdown("**État hydrique :**")
         for meth,et,val in d["etats"]: st.markdown(f"• {meth}={val} → **{et}** ({ETQ.get(et,'')})")
+        if d.get("divergence"):
+            st.warning(f"⚠️ {d['divergence']}")
     car = CARACTERES.get(d["sc"])
     if car:
         st.markdown("**Caractères principaux :**")
@@ -704,6 +841,13 @@ elif st.session_state.step==4:
                         st.markdown(f"*{sol_nom}*"); st.markdown(f'<div class="code-box">E G W T R C H → {code_str}</div>',unsafe_allow_html=True)
                         for rub,val in codes.items():
                             if val!=0: st.markdown(f"• **{rub}{val}**: {CODES[rub][val]}")
+    # Observations remblai par sous-classe
+    obs_sc = OBS_REMBLAI.get(d["sc"], {})
+    obs_txt = obs_sc.get(d.get("etat", "m"))
+    if obs_txt:
+        st.markdown("**Observations (Fascicule 2) :**")
+        st.info(obs_txt)
+        d["obs_remblai"] = obs_txt
     st.divider()
     c1,c2=st.columns(2)
     with c1:
@@ -744,6 +888,14 @@ elif st.session_state.step==5:
         d["cdf_result"]={"texte":texte,"params_meca":{},"traitement":"Chaux et/ou LH (cf. GTS)"}
         st.info(texte)
         if st.button("▶ Compactage",type="primary",use_container_width=True): go(6); st.rerun()
+    # PST determination
+    pst_val, pst_note = get_pst(d.get("sc",""), d.get("etat","m"), d.get("famille",""))
+    if pst_val:
+        st.markdown(f"**Classe PST simplifiée : {pst_val}**")
+        d["pst"] = pst_val
+        if pst_note: st.caption(pst_note)
+    elif pst_note:
+        st.caption(f"PST : {pst_note}")
 
 # ÉTAPE 6 — COMPACTAGE
 elif st.session_state.step==6:
@@ -766,10 +918,15 @@ elif st.session_state.step==7:
     pi=st.session_state.projet_info; sondages=st.session_state.sondages
     st.markdown(f"### ✅ {len(sondages)} sondage(s) enregistré(s)")
     st.caption(f"Projet : {pi['projet']} — Site : {pi['site']}")
-    for s in sondages:
+    for idx, s in enumerate(sondages):
         desc=DESC.get(s["sc"],s["sc"])
-        st.markdown(f'<div class="result-box" style="padding:12px;"><strong>{s["sondage_id"]}</strong> → '
-            f'<span class="badge badge-main">{s["symbole"]}</span> <span style="color:#6b5f50;font-size:13px;">{desc}</span></div>',unsafe_allow_html=True)
+        c_s, c_del = st.columns([8, 1])
+        with c_s:
+            st.markdown(f'<div class="result-box" style="padding:12px;"><strong>{s["sondage_id"]}</strong> → '
+                f'<span class="badge badge-main">{s["symbole"]}</span> <span style="color:#6b5f50;font-size:13px;">{desc}</span></div>',unsafe_allow_html=True)
+        with c_del:
+            if st.button("🗑", key=f"del_{idx}", help=f"Supprimer {s['sondage_id']}"):
+                st.session_state.sondages.pop(idx); st.rerun()
     st.divider()
     remaining=pi["nb_sondages"]-len(sondages)
     if remaining>0:
@@ -787,6 +944,12 @@ elif st.session_state.step==7:
         st.download_button("💾 Sauvegarder le projet", data=proj_json,
             file_name=f"GTR2023_{nom_projet}_{datetime.now().strftime('%Y%m%d')}.json",
             mime="application/json", use_container_width=True)
+    if sondages:
+        xl_buf = build_excel(pi, sondages)
+        nom_xl = pi.get("projet","projet")[:20].replace(" ","_") or "projet"
+        st.download_button("📊 Exporter en Excel", data=xl_buf,
+            file_name=f"GTR2023_{nom_xl}_{datetime.now().strftime('%Y%m%d')}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
 
 # ══════════════════════════════════════════════════════════════════
 # ÉTAPE 8 — RAPPORT FINAL
@@ -835,6 +998,11 @@ elif st.session_state.step==8:
     pdf_buf=build_pdf(pi,sondages)
     nom=f"Rapport_GTR2023_{pi['projet'][:20]}_{datetime.now().strftime('%Y%m%d')}.pdf"
     st.download_button("📥 Télécharger le rapport PDF complet",data=pdf_buf,file_name=nom,mime="application/pdf",use_container_width=True,type="primary")
+    xl_buf = build_excel(pi, sondages)
+    nom_xl = pi.get("projet","projet")[:20].replace(" ","_") or "projet"
+    st.download_button("📊 Télécharger le rapport Excel",data=xl_buf,
+        file_name=f"GTR2023_{nom_xl}_{datetime.now().strftime('%Y%m%d')}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",use_container_width=True)
     st.divider()
     c1,c2,c3=st.columns(3)
     with c1:
@@ -851,3 +1019,9 @@ elif st.session_state.step==8:
 # PIED DE PAGE
 st.divider()
 st.caption("Classification GTR2023 - S.M. SY / UIDT - Fascicules 1 et 2 (IDRRIM/Cerema, ed. 2024)")
+
+# TODO: Synoptique visuel — tableau récapitulatif graphique avec couleurs par état/classe
+# TODO: Profil en profondeur — représentation des couches par sondage avec épaisseurs
+# TODO: Coupe transversale — coupe schématique entre sondages alignés
+# TODO: Carte interactive — positionnement GPS des sondages sur fond de carte
+# TODO: Graphiques comparatifs — diagrammes radar/bar des paramètres entre sondages
