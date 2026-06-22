@@ -1047,7 +1047,7 @@ elif st.session_state.step==3:
     if st.button("✅ Vérifier",type="primary",use_container_width=True):
         if cbri is None: st.error("CBRi obligatoire")
         else:
-            ins=check_ins(d["sc"],d["p63"],d["vbs_val"],cbri); d["insensible"]=ins; d["params"]["CBRi"]=f"{cbri:.0f}"
+            ins=check_ins(d["sc"],d.get("p63",0),d.get("vbs_val"),cbri); d["insensible"]=ins; d["params"]["CBRi"]=f"{cbri:.0f}"
             if ins: d["etat"]="ins"; d["symbole"]=d["sc"]+"ins"
             go(4); st.rerun()
 
